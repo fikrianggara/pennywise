@@ -1,7 +1,5 @@
 "use client";
-import { ModeToggle } from "@/components/toggle-button";
 import { TypographyH2 } from "@/components/ui/typhography";
-import Image from "next/image";
 
 export default function Home() {
   return (

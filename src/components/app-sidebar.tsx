@@ -19,7 +19,6 @@ import {
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -27,13 +26,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { NavbarTitle } from "./nav-title";
-import { ModeToggle } from "./toggle-button";
 import { transactions } from "@/data/transaction";
-
-// const navMain = transactions.map((transaction) => ({
-
-// }))
 
 const sheets = [
   ...new Set(transactions.map((transaction) => transaction.sheetId)),

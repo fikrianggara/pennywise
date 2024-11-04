@@ -2,15 +2,11 @@
 
 import { BarChart } from "@/components/chart-bar";
 import { DataTableDemo } from "@/components/table";
-import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { TypographyH2 } from "@/components/ui/typhography";
-import { useGetBreadcrumbList } from "@/hooks/use-breadcrumb";
 import { DollarSign } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { usePathname, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DonutChartWithText } from "@/components/chart-donut";
 
