@@ -1,7 +1,6 @@
 "use client";
 import { camalize } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import path from "path";
 import { useEffect, useState } from "react";
 
 export const useGetBreadcrumbList = () => {
