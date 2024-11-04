@@ -35,7 +35,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
           {sheetId}
         </h3>
         <h3
-          className={`self-center mx-auto text-xl lg:text-2xl font-thin  w-fit ${
+          className={`self-center mx-auto text-xl lg:text-2xl  w-fit ${
             totalBalance > 0 ? "text-green-500" : "text-red-500"
           }`}
         >
@@ -72,7 +72,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                   {day} {month}
                 </h4>
                 <h4
-                  className={`text-sm font-thin px-3 py-1 border-b-2 ${
+                  className={`text-sm px-3 py-1 border-b-2 ${
                     balanceByDate > 0
                       ? " border-green-500/50 text-green-500 "
                       : "border-red-500/50 text-red-500"
@@ -98,11 +98,11 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                         </div>
                         <div className="pr-4">
                           {transaction.account === "income" ? (
-                            <p className="text-green-500 text-sm opacity-75">
+                            <p className="font-thin text-green-500 text-sm opacity-75">
                               Rp. {transaction.amount}
                             </p>
                           ) : (
-                            <p className="text-red-500 text-sm opacity-75">
+                            <p className="font-thin text-red-500 text-sm opacity-75">
                               Rp. {transaction.amount}
                             </p>
                           )}
