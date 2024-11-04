@@ -89,7 +89,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                     <li key={i}>
                       <div className="w-full flex justify-between items-start">
                         <div className="flex flex-col space-y-1">
-                          <h5 className="text-lg font-semibold">
+                          <h5 className="text-sm md:text-lg font-semibold">
                             {transaction.category}
                           </h5>
                           <p className="text-sm text-muted-foreground">
@@ -98,11 +98,11 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                         </div>
                         <div className="pr-4">
                           {transaction.account === "income" ? (
-                            <p className="font-thin text-green-500 text-sm opacity-75">
+                            <p className="text-xs md:text-sm font-thin text-green-500 text-sm opacity-75">
                               Rp. {transaction.amount}
                             </p>
                           ) : (
-                            <p className="font-thin text-red-500 text-sm opacity-75">
+                            <p className="text-xs md:text-sm font-thin text-red-500 text-sm opacity-75">
                               Rp. {transaction.amount}
                             </p>
                           )}
