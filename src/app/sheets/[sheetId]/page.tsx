@@ -89,7 +89,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
           return (
             <li key={i} className="space-y-2 pb-4">
               <div
-                className={`sticky top-48 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 pt-4 z-10 border-b ${
+                className={`sticky top-48 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 pt-4 z-10 border-b-2 ${
                   balanceByDate > 0
                     ? " border-emerald-500/50 text-emerald-500 "
                     : "border-rose-500/50 text-rose-500 "
