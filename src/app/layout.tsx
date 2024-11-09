@@ -33,7 +33,7 @@ export default function RootLayout({
         >
           <SidebarProvider>
             <AppSidebar />
-            <main className="px-2 md:px-4 space-y-4 w-full md:w-9/12 mx-auto">
+            <main className="px-2 md:px-4 w-full md:w-9/12 mx-auto">
               <Toaster />
               <Navbar />
               <div className="flex items-center gap-2 md:space-x-4">

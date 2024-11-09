@@ -55,7 +55,7 @@ import { ModeToggle } from "./toggle-button";
 
 export function Navbar() {
   return (
-    <div className="py-2 md:py-4 flex justify-between items-center">
+    <div className="py-2 md:py-4 flex justify-between items-center sticky top-0 z-50 bg-background">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>

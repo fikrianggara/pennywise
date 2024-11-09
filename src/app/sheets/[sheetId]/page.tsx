@@ -34,35 +34,37 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
   const totalBalance = totalIncome - totalExpense;
   return (
     <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-6">
-      <div className="w-full text-center space-y-2">
-        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-          {sheetId}
-        </h3>
-        <h3
-          className={`self-center mx-auto text-xl lg:text-2xl  px-4 rounded w-fit ${
-            totalBalance > 0
-              ? "text-emerald-500 bg-emerald-50 dark:bg-emerald-950"
-              : "text-rose-500 bg-rose-50 dark:bg-rose-950"
-          }`}
-        >
-          {totalBalance < 0
-            ? `- Rp. ${totalBalance * -1}`
-            : `Rp. ${totalBalance}`}
-        </h3>
+      <div className="space-y-6 sticky top-12 bg-background py-4 z-40">
+        <div className="w-full text-center space-y-2">
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {sheetId}
+          </h3>
+          <h3
+            className={`self-center mx-auto text-xl lg:text-2xl  px-4 rounded w-fit ${
+              totalBalance > 0
+                ? "text-emerald-500 bg-emerald-50 dark:bg-emerald-950"
+                : "text-rose-500 bg-rose-50 dark:bg-rose-950"
+            }`}
+          >
+            {totalBalance < 0
+              ? `- Rp. ${totalBalance * -1}`
+              : `Rp. ${totalBalance}`}
+          </h3>
+        </div>
+
+        <DrawerDialog
+          trigger={
+            <Button size="sm">
+              <Plus /> Tambah
+            </Button>
+          }
+          title="Tambah Transaksi"
+          description="Tambah transaksi pengeluaran/pemasukan baru"
+          content={<AddTransactionForm />}
+        />
       </div>
 
-      <DrawerDialog
-        trigger={
-          <Button size="sm">
-            <Plus /> Tambah
-          </Button>
-        }
-        title="Tambah Transaksi"
-        description="Tambah transaksi pengeluaran/pemasukan baru"
-        content={<AddTransactionForm />}
-      />
-
-      <ul className="space-y-4">
+      <ul className="">
         {uniqueDate.map((d, i) => {
           const date = new Date(d);
           const day = date.getDate();
@@ -85,16 +87,22 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
             }, 0);
           const balanceByDate = totalIncomeByDate - totalExpenseByDate;
           return (
-            <li key={i} className="space-y-2 ">
-              <div className="w-full flex justify-between">
-                <h4 className="sticky top-0 scroll-m-20 text-sm md:text-lg font-semibold tracking-tight text-muted-foreground">
+            <li key={i} className="space-y-2 pb-4">
+              <div
+                className={`sticky top-48 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 z-10 border-b ${
+                  balanceByDate > 0
+                    ? " border-emerald-500/50 text-emerald-500 "
+                    : "border-rose-500/50 text-rose-500 "
+                }`}
+              >
+                <h4 className="scroll-m-20 text-sm md:text-lg font-semibold tracking-tight text-foreground">
                   {day} {month}
                 </h4>
                 <h4
-                  className={`text-sm px-3 py-1 border-b-2 ${
+                  className={`text-sm px-3 py-1 rounded ${
                     balanceByDate > 0
-                      ? " border-emerald-500/50 text-emerald-500 "
-                      : "border-rose-500/50 text-rose-500 "
+                      ? " border-emerald-500/50 text-emerald-500 bg-emerald-50 dark:bg-emerald-950 "
+                      : "border-rose-500/50 text-rose-500 bg-rose-50 dark:bg-rose-950 "
                   }`}
                 >
                   {balanceByDate < 0
@@ -110,7 +118,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                     <li key={i} className="space-y-2">
                       <div className="w-full flex justify-between items-start">
                         <div className="flex flex-col space-y-1">
-                          <h5 className="text-sm md:text-lg font-semibold">
+                          <h5 className="text-sm md:text-base">
                             {transaction.category}
                           </h5>
                           <p className="text-xs md:text-sm text-muted-foreground">
@@ -119,11 +127,11 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                         </div>
                         <div className="pr-4">
                           {transaction.account === "income" ? (
-                            <p className="font-thin text-emerald-500 text-sm opacity-75">
+                            <p className="font-thin text-emerald-500 text-sm">
                               Rp. {transaction.amount}
                             </p>
                           ) : (
-                            <p className="font-thin text-rose-500 text-sm opacity-75">
+                            <p className="font-thin text-rose-500 text-sm">
                               - Rp. {transaction.amount}
                             </p>
                           )}
