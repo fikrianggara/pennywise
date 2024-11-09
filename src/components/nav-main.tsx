@@ -43,30 +43,32 @@ export function NavMain({
       <SidebarGroupLabel>Sheets</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
-          <SidebarMenuItem key={item.name} className="p-2">
+          <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url} className="p-2">
+              <a href={item.url} className="p-6 flex items-center">
                 <Avatar className="h-6 w-6">
                   <AvatarFallback>
                     <item.icon size={18} />
                   </AvatarFallback>
                 </Avatar>
 
-                <div className="flex flex-col space-y-1 p-2">
+                <div className="flex flex-col space-y-1">
                   <span className="font-medium">{item.name}</span>
                   <span
                     className={`text-xs ${
-                      item.statistic < 0 ? "text-red-500" : "text-green-500"
+                      item.statistic < 0 ? "text-rose-500" : "text-emerald-500"
                     }`}
                   >
-                    {item.statistic}
+                    {item.statistic < 0
+                      ? `- Rp. ${-1 * item.statistic}`
+                      : "Rp. " + item.statistic}
                   </span>
                 </div>
               </a>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
+                <SidebarMenuAction showOnHover className="self-center">
                   <MoreHorizontal />
                   <span className="sr-only">More</span>
                 </SidebarMenuAction>

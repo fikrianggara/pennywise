@@ -2,6 +2,10 @@ import React from "react";
 import { transactions } from "@/data/transaction";
 import { getMonthNameFromDate } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { DrawerDialog } from "@/components/drawerDialog";
+import { AddTransactionForm } from "@/components/form";
 
 const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
   const sheetId = (await params).sheetId;
@@ -29,19 +33,34 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
     }, 0);
   const totalBalance = totalIncome - totalExpense;
   return (
-    <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-4">
+    <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-6">
       <div className="w-full text-center space-y-2">
         <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
           {sheetId}
         </h3>
         <h3
-          className={`self-center mx-auto text-xl lg:text-2xl  w-fit ${
-            totalBalance > 0 ? "text-green-500" : "text-red-500"
+          className={`self-center mx-auto text-xl lg:text-2xl  px-4 rounded w-fit ${
+            totalBalance > 0
+              ? "text-emerald-500 bg-emerald-50 dark:bg-emerald-950"
+              : "text-rose-500 bg-rose-50 dark:bg-rose-950"
           }`}
         >
-          Rp. {totalBalance}
+          {totalBalance < 0
+            ? `- Rp. ${totalBalance * -1}`
+            : `Rp. ${totalBalance}`}
         </h3>
       </div>
+
+      <DrawerDialog
+        trigger={
+          <Button size="sm">
+            <Plus /> Tambah
+          </Button>
+        }
+        title="Tambah Transaksi"
+        description="Tambah transaksi pengeluaran/pemasukan baru"
+        content={<AddTransactionForm />}
+      />
 
       <ul className="space-y-4">
         {uniqueDate.map((d, i) => {
@@ -74,11 +93,13 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                 <h4
                   className={`text-sm px-3 py-1 border-b-2 ${
                     balanceByDate > 0
-                      ? " border-green-500/50 text-green-500 "
-                      : "border-red-500/50 text-red-500"
+                      ? " border-emerald-500/50 text-emerald-500 "
+                      : "border-rose-500/50 text-rose-500 "
                   }`}
                 >
-                  Rp. {balanceByDate}
+                  {balanceByDate < 0
+                    ? `- Rp. ${balanceByDate * -1}`
+                    : `Rp. ${balanceByDate}`}
                 </h4>
               </div>
 
@@ -86,7 +107,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                 {filteredTransactions
                   .filter((transaction) => transaction.date === d)
                   .map((transaction, i) => (
-                    <li key={i}>
+                    <li key={i} className="space-y-2">
                       <div className="w-full flex justify-between items-start">
                         <div className="flex flex-col space-y-1">
                           <h5 className="text-sm md:text-lg font-semibold">
@@ -98,12 +119,12 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
                         </div>
                         <div className="pr-4">
                           {transaction.account === "income" ? (
-                            <p className="font-thin text-green-500 text-sm opacity-75">
+                            <p className="font-thin text-emerald-500 text-sm opacity-75">
                               Rp. {transaction.amount}
                             </p>
                           ) : (
-                            <p className="font-thin text-red-500 text-sm opacity-75">
-                              Rp. {transaction.amount}
+                            <p className="font-thin text-rose-500 text-sm opacity-75">
+                              - Rp. {transaction.amount}
                             </p>
                           )}
                         </div>
