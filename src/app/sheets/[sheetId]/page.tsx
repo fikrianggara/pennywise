@@ -34,13 +34,13 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
   const totalBalance = totalIncome - totalExpense;
   return (
     <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-6">
-      <div className="space-y-6 sticky top-12 bg-background py-2 z-40">
+      <div className="space-y-6 sticky top-12 bg-background py-4 z-40">
         <div className="w-full text-center space-y-2">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             {sheetId}
           </h3>
           <h3
-            className={`self-center mx-auto text-xl lg:text-2xl  px-4 rounded w-fit ${
+            className={`self-center mx-auto text-xl lg:text-2xl px-4 rounded w-fit ${
               totalBalance > 0
                 ? "text-emerald-500 bg-emerald-50 dark:bg-emerald-950"
                 : "text-rose-500 bg-rose-50 dark:bg-rose-950"
@@ -89,7 +89,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
           return (
             <li key={i} className="space-y-2 pb-4">
               <div
-                className={`sticky top-48 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 z-10 border-b ${
+                className={`sticky top-48 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 pt-4 z-10 border-b ${
                   balanceByDate > 0
                     ? " border-emerald-500/50 text-emerald-500 "
                     : "border-rose-500/50 text-rose-500 "
