@@ -55,7 +55,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
         <DrawerDialog
           trigger={
             <Button size="sm">
-              <Plus /> Tambah
+              <Plus /> Catatan
             </Button>
           }
           title="Tambah Transaksi"
