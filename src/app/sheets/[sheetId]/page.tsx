@@ -34,7 +34,7 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
   const totalBalance = totalIncome - totalExpense;
   return (
     <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-6">
-      <div className="space-y-6 sticky top-12 bg-background py-4 z-40">
+      <div className="space-y-6 sticky top-12 bg-background py-2 z-40">
         <div className="w-full text-center space-y-2">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             {sheetId}
