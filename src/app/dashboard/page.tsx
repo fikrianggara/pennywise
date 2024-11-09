@@ -17,7 +17,9 @@ export default function Dashboard() {
         <TypographyH2>Dashboard</TypographyH2>
         <div className="flex items-center space-x-2">
           <DatePickerWithRange />
-          <Button>Download</Button>
+          <Button className=" w-fit md:w-32" size="sm">
+            Download
+          </Button>
         </div>
       </div>
       <Tabs defaultValue="transaction" className="w-full">

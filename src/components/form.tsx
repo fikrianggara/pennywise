@@ -133,7 +133,7 @@ export const RadioInput = ({
     <RadioGroup
       defaultValue={options[0].value}
       onValueChange={callback}
-      className={`flex ${
+      className={`flex text-sm ${
         orientation === "horizontal"
           ? "flex-row space-x-2"
           : "flex-col space-y-2"
@@ -142,7 +142,9 @@ export const RadioInput = ({
       {options.map((option) => (
         <div key={option.value} className="flex items-center space-x-2">
           <RadioGroupItem value={option.value} id={option.value} />
-          <Label htmlFor={option.value}>{option.label}</Label>
+          <Label htmlFor={option.value} className="text-sm">
+            {option.label}
+          </Label>
         </div>
       ))}
     </RadioGroup>
@@ -168,11 +170,11 @@ export const AddTransactionForm = () => {
   }
 
   return (
-    <div className="h-fit overflow-y-scroll p-4">
+    <div className="h-[calc(100vh-350px)] overflow-y-scroll p-4 md:p-0">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 text-sm"
+          className="space-y-4 text-xs "
         >
           <FormField
             control={form.control}
