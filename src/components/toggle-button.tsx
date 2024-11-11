@@ -13,7 +13,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "/" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        console.log(theme);
+        if (theme == "dark") setTheme("light");
+        if (theme == "light") setTheme("dark");
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  });
 
   return (
     <DropdownMenu>
