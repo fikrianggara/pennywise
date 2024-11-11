@@ -21,16 +21,19 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
   const uniqueDate = [
     ...new Set(filteredTransactions.map((transaction) => transaction.date)),
   ];
+
   const totalIncome = filteredTransactions
     .filter((transaction) => transaction.account === "income")
     .reduce(function (acc, obj) {
       return acc + obj.amount;
     }, 0);
+
   const totalExpense = filteredTransactions
     .filter((transaction) => transaction.account === "expense")
     .reduce(function (acc, obj) {
       return acc + obj.amount;
     }, 0);
+
   const totalBalance = totalIncome - totalExpense;
   return (
     <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-6">
@@ -56,10 +59,14 @@ const Page = async ({ params }: { params: Promise<{ sheetId: string }> }) => {
           trigger={
             <Button size="sm">
               <Plus /> Catatan
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded borderpx-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>J
+              </kbd>
             </Button>
           }
           title="Tambah Transaksi"
           description="Tambah transaksi pengeluaran/pemasukan baru"
+          shortcutKey="j"
           content={<AddTransactionForm />}
         />
       </div>

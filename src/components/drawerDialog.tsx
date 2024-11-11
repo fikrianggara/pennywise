@@ -28,14 +28,29 @@ export function DrawerDialog({
   title,
   description,
   content,
+  shortcutKey,
 }: {
   trigger: React.ReactNode;
   title: string;
   description: string | null;
   content: React.ReactNode;
+  shortcutKey?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const isMobile = useIsMobile();
+
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === shortcutKey && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={setOpen}>

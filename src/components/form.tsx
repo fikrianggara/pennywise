@@ -28,23 +28,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { transactions } from "@/data/transaction";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { CalendarIcon } from "lucide-react";
-
-// const dummy = {
-//   id: "1",
-//   sheetId: "saving",
-//   account: "income",
-//   category: "salary",
-//   description: "Monthly salary",
-//   amount: 5000,
-//   date: "2024-01-10",
-//   time: "09:00",
-// };
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import {
+  getLocalStorageByKey,
+  setLocalStorageByKey,
+} from "@/store/localstorage";
+import { useRef, useState } from "react";
 
 const uniqueCategories = [...new Set(transactions.map((t) => t.category))];
 const uniqueSheets = [...new Set(transactions.map((t) => t.sheetId))];
@@ -120,6 +121,98 @@ export const SelectInput = ({
   );
 };
 
+export const ComboboxWithSearchInput = ({
+  optionsProp,
+  placeholder,
+  callback,
+}: {
+  optionsProp: { label: string; value: string }[];
+  placeholder: string;
+  callback: (value: string) => void;
+}) => {
+  const [options, setOptions] = useState(optionsProp);
+  const [selectedOption, setSelectedOption] = useState(optionsProp[0].value);
+  const [searchInput, setSearchInput] = useState("");
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className={cn(
+            "w-full justify-between text-xs ",
+            !selectedOption && "text-muted-foreground"
+          )}
+        >
+          {selectedOption
+            ? options.find((option) => option.value === selectedOption)?.label
+            : placeholder}
+          <ChevronsUpDown className="opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-36 p-0 truncate">
+        <Command>
+          <CommandInput
+            placeholder={placeholder + "..."}
+            onValueChange={setSearchInput}
+            className="h-9 text-xs"
+          />
+          <CommandList>
+            {options.find((option) =>
+              option.label.toLowerCase().startsWith(searchInput.toLowerCase())
+            ) ? null : (
+              <CommandItem
+                key={searchInput}
+                value={searchInput}
+                onSelect={() => {
+                  setOptions((prev) => [
+                    ...prev,
+                    { label: searchInput, value: searchInput },
+                  ]);
+                  setSelectedOption(searchInput);
+                  callback(searchInput);
+                }}
+              >
+                {searchInput}
+                <Check
+                  className={cn(
+                    "ml-auto text-xs  ",
+                    searchInput === selectedOption ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            )}
+
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  value={option.label}
+                  key={option.value}
+                  onSelect={() => {
+                    setSelectedOption(option.value);
+                    callback(option.value);
+                  }}
+                >
+                  {option.label}
+                  <Check
+                    className={cn(
+                      "ml-auto text-xs  ",
+                      option.value === selectedOption
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 export const RadioInput = ({
   options,
   orientation,
@@ -133,7 +226,7 @@ export const RadioInput = ({
     <RadioGroup
       defaultValue={options[0].value}
       onValueChange={callback}
-      className={`flex text-sm ${
+      className={`flex text-xs  ${
         orientation === "horizontal"
           ? "flex-row space-x-2"
           : "flex-col space-y-2"
@@ -142,7 +235,7 @@ export const RadioInput = ({
       {options.map((option) => (
         <div key={option.value} className="flex items-center space-x-2">
           <RadioGroupItem value={option.value} id={option.value} />
-          <Label htmlFor={option.value} className="text-sm">
+          <Label htmlFor={option.value} className="text-xs ">
             {option.label}
           </Label>
         </div>
@@ -165,23 +258,35 @@ export const AddTransactionForm = () => {
     },
   });
   function onSubmit(values: z.infer<typeof transactionSchema>) {
-    toast.success("Transaction added");
-    console.log(values);
+    const payload = {
+      id: crypto.randomUUID(),
+      ...values,
+      date: format(values.date, "dd-MM-yyyy"),
+    };
+    const transactionsString = getLocalStorageByKey("transactions");
+    if (transactionsString) {
+      const transactions = JSON.parse(transactionsString);
+      transactions.push(payload);
+      setLocalStorageByKey("transactions", JSON.stringify(transactions));
+    } else {
+      localStorage.setItem("transactions", JSON.stringify([payload]));
+    }
+    toast.success("Transaksi ditambahkan");
   }
 
   return (
-    <div className="h-[calc(100vh-350px)] overflow-y-scroll p-4 md:p-0">
+    <div className="h-[calc(100vh-400px)] overflow-y-scroll p-4 md:p-2">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 text-xs "
+          className="space-y-4 text-xs"
         >
           <FormField
             control={form.control}
             name="account"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Akun</FormLabel>
+                <FormLabel className="text-xs ">Akun</FormLabel>
                 <FormControl defaultValue={field.value}>
                   <RadioInput
                     callback={field.onChange}
@@ -202,10 +307,10 @@ export const AddTransactionForm = () => {
               name="sheetId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sheet</FormLabel>
+                  <FormLabel className=" text-xs ">Sheet</FormLabel>
                   <FormControl>
-                    <SelectInput
-                      options={uniqueSheets.map((sheet) => ({
+                    <ComboboxWithSearchInput
+                      optionsProp={uniqueSheets.map((sheet) => ({
                         label: sheet,
                         value: sheet,
                       }))}
@@ -223,10 +328,10 @@ export const AddTransactionForm = () => {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kategori</FormLabel>
+                  <FormLabel className="text-xs ">Kategori</FormLabel>
                   <FormControl>
-                    <SelectInput
-                      options={uniqueCategories.map((category) => ({
+                    <ComboboxWithSearchInput
+                      optionsProp={uniqueCategories.map((category) => ({
                         label: category,
                         value: category,
                       }))}
@@ -244,7 +349,7 @@ export const AddTransactionForm = () => {
               name="date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tanggal</FormLabel>
+                  <FormLabel className="text-xs ">Tanggal</FormLabel>
                   <FormControl>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -252,14 +357,14 @@ export const AddTransactionForm = () => {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-full pl-3 text-left font-normal",
+                              "w-full pl-3 text-left font-normal truncate text-xs ",
                               !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value ? (
                               format(field.value, "PPP")
                             ) : (
-                              <span>Pick a date</span>
+                              <span className="text-xs ">Pilih tanggal</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -285,9 +390,13 @@ export const AddTransactionForm = () => {
               name="time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Waktu</FormLabel>
+                  <FormLabel className="text-xs ">Waktu</FormLabel>
                   <FormControl>
-                    <Input placeholder="" {...field} />
+                    <Input
+                      placeholder={"hh:mm"}
+                      {...field}
+                      className="text-xs "
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -299,16 +408,17 @@ export const AddTransactionForm = () => {
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nominal</FormLabel>
+                <FormLabel className="text-xs ">Nominal</FormLabel>
                 <FormControl>
                   <Input
                     placeholder=""
                     {...field}
                     type="number"
+                    className="text-xs "
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
-                <FormDescription>
+                <FormDescription className="text-xs">
                   nominal yang diperoleh atau dikeluarkan
                 </FormDescription>
                 <FormMessage />
@@ -320,11 +430,11 @@ export const AddTransactionForm = () => {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Catatan</FormLabel>
+                <FormLabel className="text-xs ">Catatan</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="deskripsi pengeluaran/pemasukan"
-                    className="resize-none text-sm"
+                    className="resize-none text-xs "
                     {...field}
                   />
                 </FormControl>
@@ -332,7 +442,7 @@ export const AddTransactionForm = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full text-xs ">
             Tambah
           </Button>
         </form>
