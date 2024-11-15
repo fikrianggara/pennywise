@@ -44,6 +44,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ? sheets.map((sheet) => ({
         id: sheet.id,
         name: sheet.name,
+        description: sheet.description,
         statistic: transactions
           ? transactions.filter(
               (transaction) => transaction.sheetId === sheet.id

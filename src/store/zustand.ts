@@ -7,6 +7,8 @@ type PERSIST_STORE = {
   sheets: SHEET[];
   addTransaction: (transaction: TRANSACTION) => void;
   addSheet: (sheet: SHEET) => void;
+  updateTransactionById: (id: string, transaction: TRANSACTION) => void;
+  updateSheetById: (id: string, sheet: SHEET) => void;
   deleteTransactionById: (id: string) => void;
   deleteSheetById: (id: string) => void;
 };
@@ -32,6 +34,31 @@ export const usePersistStore = create<PERSIST_STORE>()(
           set({ sheets: [sheet] });
         }
       },
+      updateTransactionById(id, transaction) {
+        const transactionsStore = get().transactions;
+        if (transactionsStore.length > 0) {
+          const newTransactions = transactionsStore.map((t: TRANSACTION) => {
+            if (t.id === id) {
+              return transaction;
+            }
+            return t;
+          });
+          set({ transactions: newTransactions });
+        }
+      },
+      updateSheetById: (id: string, sheet: SHEET) => {
+        const sheetsStore = get().sheets;
+        if (sheetsStore.length > 0) {
+          const newSheets = sheetsStore.map((s: SHEET) => {
+            if (s.id === id) {
+              return sheet;
+            }
+            return s;
+          });
+          set({ sheets: newSheets });
+        }
+      },
+
       deleteTransactionById: (id: string) => {
         const newTransactions = get().transactions.filter(
           (t: TRANSACTION) => t.id != id

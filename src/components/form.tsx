@@ -5,7 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import {
+  CircleAlert,
+  CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  SquarePen,
+  Trash,
+} from "lucide-react";
 import {
   Form,
   FormControl,
@@ -43,6 +50,8 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 import { usePersistStore } from "@/store/zustand";
+import { SHEET, TRANSACTION } from "@/types/type";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const transactionSchema = z.object({
   sheetId: z
@@ -102,6 +111,16 @@ const sheetSchema = z.object({
     .max(20, {
       message: "maksimal 20 karakter",
     }),
+  description: z
+    .string({
+      required_error: "deskripsi harus terisi",
+    })
+    .min(4, {
+      message: "minimal 4 karakter",
+    })
+    .max(200, {
+      message: "maksimal 200 karakter",
+    }),
 });
 
 export const SelectInput = ({
@@ -130,16 +149,18 @@ export const SelectInput = ({
 };
 
 export const ComboboxWithSearchInput = ({
+  value,
   optionsProp,
   placeholder,
   callback,
 }: {
+  value: string;
   optionsProp: { label: string; value: string }[];
   placeholder: string;
   callback: (value: string) => void;
 }) => {
   const [options, setOptions] = useState(optionsProp);
-  const [selectedOption, setSelectedOption] = useState("");
+  const [selectedOption, setSelectedOption] = useState(value);
   const [searchInput, setSearchInput] = useState("");
 
   return (
@@ -261,6 +282,7 @@ export const AddSheetForm = () => {
       name: "",
     },
   });
+
   async function onSubmit(values: z.infer<typeof sheetSchema>) {
     const payload = {
       id: crypto.randomUUID(),
@@ -272,7 +294,7 @@ export const AddSheetForm = () => {
     toast.success("Sheet berhasil ditambahkan");
   }
   return (
-    <div className="p-4 md:p-0">
+    <div className="p-4 md:p-2">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -289,6 +311,23 @@ export const AddSheetForm = () => {
                     placeholder={"tabungan"}
                     {...field}
                     className="text-xs "
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Catatan</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="deskripsi sheet"
+                    className="resize-none text-xs "
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />
@@ -364,6 +403,7 @@ export const AddTransactionForm = () => {
                   <FormLabel className=" text-xs ">Sheet</FormLabel>
                   <FormControl>
                     <ComboboxWithSearchInput
+                      value={field.value}
                       optionsProp={sheets.map((sheet) => ({
                         label: sheet.name,
                         value: sheet.id,
@@ -385,6 +425,315 @@ export const AddTransactionForm = () => {
                   <FormLabel className="text-xs ">Kategori</FormLabel>
                   <FormControl>
                     <ComboboxWithSearchInput
+                      value={field.value}
+                      optionsProp={
+                        transactions.length > 0
+                          ? [
+                              ...new Set(transactions.map((t) => t.category)),
+                            ].map((category) => ({
+                              label: category,
+                              value: category,
+                            }))
+                          : []
+                      }
+                      placeholder="Pilih Kategori"
+                      callback={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs ">Tanggal</FormLabel>
+                  <FormControl>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal truncate text-xs ",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span className="text-xs ">Pilih tanggal</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs ">Waktu</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={"hh:mm"}
+                      {...field}
+                      className="text-xs "
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Nominal</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder=""
+                    {...field}
+                    type="number"
+                    className="text-xs "
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  nominal yang diperoleh atau dikeluarkan
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Deskripsi</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="deskripsi pengeluaran/pemasukan"
+                    className="resize-none text-xs "
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="w-full text-xs ">
+            Tambah
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export const UpdateSheetForm = ({ sheet }: { sheet: SHEET }) => {
+  const { updateSheetById, deleteSheetById } = usePersistStore();
+
+  const form = useForm<z.infer<typeof sheetSchema>>({
+    resolver: zodResolver(sheetSchema),
+    defaultValues: {
+      name: sheet.name,
+      description: sheet.description,
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof sheetSchema>) {
+    const payload = {
+      id: sheet.id,
+      ...values,
+    };
+    updateSheetById(payload.id, payload);
+
+    toast.success("Sheet berhasil diubah");
+  }
+  const onDelete = () => {
+    deleteSheetById(sheet.id);
+  };
+  return (
+    <div className="p-4 md:p-2 space-y-4">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 text-xs"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Nama</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={"tabungan"}
+                    {...field}
+                    className="text-xs "
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Deskripsi</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="deskripsi sheet"
+                    className="resize-none text-xs "
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col flex-col-reverse md:flex-row gap-4">
+            <Button
+              className="w-full text-xs text-red-600"
+              variant={"secondary"}
+              onClick={onDelete}
+            >
+              <Trash /> Hapus
+            </Button>
+            <Button type="submit" className="w-full text-xs ">
+              <SquarePen />
+              Perbarui
+            </Button>
+          </div>
+        </form>
+      </Form>
+      <Alert variant={"destructive"} className="text-xs">
+        <CircleAlert className="h-4 w-4" />
+        <AlertTitle>Peringatan</AlertTitle>
+        <AlertDescription className="text-xs">
+          Data yang dihapus tidak bisa dipulihkan.
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
+};
+
+export const UpdateTransactionForm = ({
+  transaction,
+}: {
+  id: string;
+  transaction: TRANSACTION;
+}) => {
+  const { sheets, transactions, updateTransactionById, deleteTransactionById } =
+    usePersistStore();
+  const form = useForm<z.infer<typeof transactionSchema>>({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      sheetId: transaction.sheetId,
+      account: transaction.account as "income" | "expense",
+      category: transaction.category,
+      description: transaction.description,
+      amount: transaction.amount,
+      date: new Date(transaction.date),
+      time: transaction.time,
+    },
+  });
+  function onSubmit(values: z.infer<typeof transactionSchema>) {
+    const payload = {
+      id: crypto.randomUUID(),
+      ...values,
+    };
+    updateTransactionById(transaction.id, payload);
+
+    toast.success("Transaksi berhasil diubah");
+  }
+  function onDelete() {
+    deleteTransactionById(transaction.id);
+    toast.success("Transaksi berhasil dihapus");
+  }
+  return (
+    <div className="h-[calc(100vh-400px)] overflow-y-scroll p-4 md:p-2 space-y-4">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 text-xs"
+        >
+          <FormField
+            control={form.control}
+            name="account"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Akun</FormLabel>
+                <FormControl defaultValue={field.value}>
+                  <RadioInput
+                    callback={field.onChange}
+                    options={[
+                      { label: "Pengeluaran", value: "expense" },
+                      { label: "Pemasukan", value: "income" },
+                    ]}
+                    orientation="horizontal"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <FormField
+              control={form.control}
+              name="sheetId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className=" text-xs ">Sheet</FormLabel>
+                  <FormControl>
+                    <ComboboxWithSearchInput
+                      value={field.value}
+                      optionsProp={sheets.map((sheet) => ({
+                        label: sheet.name,
+                        value: sheet.id,
+                      }))}
+                      placeholder="Pilih Sheet"
+                      callback={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-xs ">Kategori</FormLabel>
+                  <FormControl>
+                    <ComboboxWithSearchInput
+                      value={field.value}
                       optionsProp={
                         transactions.length > 0
                           ? [
@@ -502,11 +851,28 @@ export const AddTransactionForm = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full text-xs ">
-            Tambah
-          </Button>
+          <div className="flex flex-col flex-col-reverse md:flex-row gap-4">
+            <Button
+              className="w-full text-xs text-red-600"
+              variant={"secondary"}
+              onClick={onDelete}
+            >
+              <Trash /> Hapus
+            </Button>
+            <Button type="submit" className="w-full text-xs ">
+              <SquarePen />
+              Perbarui
+            </Button>
+          </div>
         </form>
       </Form>
+      <Alert variant={"destructive"} className="text-xs">
+        <CircleAlert className="h-4 w-4" />
+        <AlertTitle>Peringatan</AlertTitle>
+        <AlertDescription className="text-xs">
+          Data yang dihapus tidak bisa dipulihkan.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 };

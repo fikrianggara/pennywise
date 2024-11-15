@@ -18,7 +18,6 @@ export function ModeToggle() {
     const down = (e: KeyboardEvent) => {
       if (e.key === "/" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        console.log(theme);
         if (theme == "dark") setTheme("light");
         if (theme == "light") setTheme("dark");
       }

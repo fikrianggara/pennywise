@@ -6,6 +6,7 @@ import {
   FileDown,
   MoreHorizontal,
   Plus,
+  SquarePen,
   Trash2,
   type LucideIcon,
 } from "lucide-react";
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { DrawerDialog } from "./drawerDialog";
-import { AddSheetForm } from "./form";
+import { AddSheetForm, UpdateSheetForm } from "./form";
 import Link from "next/link";
 import { usePersistStore } from "@/store/zustand";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export function NavMain({
   items: {
     id: string;
     name: string;
+    description: string;
     url: string;
     statistic: number;
     icon: LucideIcon;
@@ -48,7 +50,6 @@ export function NavMain({
   const { isMobile } = useSidebar();
   const { deleteSheetById } = usePersistStore();
 
-  // const { deleteSheetById } = useStore();
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Sheets</SidebarGroupLabel>
@@ -100,6 +101,18 @@ export function NavMain({
                     <Eye className="text-muted-foreground" />
                     <Link href={`/sheets/${item.id}`}>Lihat Sheet</Link>
                   </DropdownMenuItem>
+                  <DrawerDialog
+                    title={`Perbarui Sheet ${item.name}`}
+                    description={""}
+                    content={<UpdateSheetForm sheet={item} />}
+                    trigger={
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <SquarePen className="text-muted-foreground" />
+                        Edit
+                      </DropdownMenuItem>
+                    }
+                  />
+
                   <DropdownMenuItem>
                     <FileDown className="text-muted-foreground" />
                     <button onClick={() => console.log("coming soon")}>
@@ -112,7 +125,7 @@ export function NavMain({
                     description={""}
                     content={
                       <div className="p-4 md:p-0 space-y-2">
-                        <Alert>
+                        <Alert variant={"destructive"}>
                           <CircleAlert className="h-4 w-4" />
                           <AlertTitle>Perhatian!</AlertTitle>
                           <AlertDescription>

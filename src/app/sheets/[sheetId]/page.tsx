@@ -1,11 +1,10 @@
 "use client";
 import React from "react";
 import { getMonthNameFromDate } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DrawerDialog } from "@/components/drawerDialog";
-import { AddTransactionForm } from "@/components/form";
+import { AddTransactionForm, UpdateTransactionForm } from "@/components/form";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { usePersistStore } from "@/store/zustand";
@@ -14,7 +13,6 @@ import notFound from "@/app/not-found";
 const Page = () => {
   const params = useParams();
   const { sheetId } = params;
-
   const { sheets, transactions } = usePersistStore();
 
   if (!sheets.find((s) => s.id === sheetId)) {
@@ -56,6 +54,7 @@ const Page = () => {
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             {sheets.find((s) => s.id == sheetId)?.name}
           </h3>
+          <p>{sheets.find((s) => s.id == sheetId)?.description}</p>
           {filteredTransactions.length > 0 && (
             <h3
               className={`self-center mx-auto text-lg lg:text-xl px-4 rounded w-fit ${
@@ -139,29 +138,46 @@ const Page = () => {
                   {filteredTransactions
                     .filter((transaction) => transaction.date === d)
                     .map((transaction, i) => (
-                      <li key={i} className="space-y-2">
-                        <div className="w-full flex justify-between items-start">
-                          <div className="flex flex-col space-y-1">
-                            <h5 className="text-sm md:text-base">
-                              {transaction.category}
-                            </h5>
-                            <p className="text-xs md:text-sm text-muted-foreground">
-                              {transaction.description}
-                            </p>
-                          </div>
-                          <div className="pr-4">
-                            {transaction.account === "income" ? (
-                              <p className="font-thin text-emerald-500 text-sm">
-                                Rp. {transaction.amount}
-                              </p>
-                            ) : (
-                              <p className="font-thin text-rose-500 text-sm">
-                                - Rp. {transaction.amount}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        <Separator></Separator>
+                      <li
+                        key={i}
+                        className="space-y-2 hover:bg-muted p-2 rounded cursor-pointer"
+                      >
+                        <DrawerDialog
+                          title="Detail Transaksi"
+                          description="Detail transaksi pengeluaran/pemasukan"
+                          content={
+                            <UpdateTransactionForm
+                              id={transaction.id}
+                              transaction={{
+                                ...transaction,
+                                date: new Date(transaction.date),
+                              }}
+                            />
+                          }
+                          trigger={
+                            <div className="w-full flex justify-between items-start relative">
+                              <div className="flex flex-col space-y-1 ">
+                                <h5 className="text-sm md:text-base">
+                                  {transaction.category}
+                                </h5>
+                                <p className="text-xs md:text-sm text-muted-foreground">
+                                  {transaction.description}
+                                </p>
+                              </div>
+                              <div className="pr-4">
+                                {transaction.account === "income" ? (
+                                  <p className="font-thin text-emerald-500 text-sm">
+                                    Rp. {transaction.amount}
+                                  </p>
+                                ) : (
+                                  <p className="font-thin text-rose-500 text-sm">
+                                    - Rp. {transaction.amount}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          }
+                        />
                       </li>
                     ))}
                 </ul>

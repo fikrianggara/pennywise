@@ -64,7 +64,9 @@ export function DrawerDialog({
           {content}
           <DrawerFooter className="pt-2">
             <DrawerClose asChild>
-              <Button variant="outline">Batal</Button>
+              <Button variant="outline" className="text-xs">
+                Batal
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
@@ -81,7 +83,9 @@ export function DrawerDialog({
         </DialogHeader>
         {content}
         <DialogClose asChild>
-          <Button variant="outline">Batal</Button>
+          <Button variant="outline" className="text-xs mx-2">
+            Batal
+          </Button>
         </DialogClose>
       </DialogContent>
     </Dialog>

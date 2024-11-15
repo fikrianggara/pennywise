@@ -1,6 +1,6 @@
 "use client";
 import { DrawerDialog } from "@/components/drawerDialog";
-import { AddSheetForm } from "@/components/form";
+import { AddSheetForm, UpdateSheetForm } from "@/components/form";
 import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -21,6 +21,7 @@ import {
   FileDown,
   MoreHorizontal,
   Plus,
+  SquarePen,
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
@@ -39,7 +40,7 @@ export default function Home() {
         <p className="text-lg md:text-xl text-muted-foreground">
           Wise Up Your Penny&lsquo;s Expenses
         </p>
-        <p className="md:leading-7 w-11/12 lg:w-1/2">
+        <p className="text-xs md:text-md lg:text-lg md:leading-7 w-11/12 lg:w-1/2">
           Pennywise adalah teman keuangan cerdas Anda, yang membantu Anda
           melacak pengeluaran, mengelola pendapatan, dan mencapai kejelasan
           finansial—semuanya dalam satu aplikasi sederhana. Pantau keuangan Anda
@@ -109,6 +110,19 @@ export default function Home() {
                         <Eye className="text-muted-foreground" />
                         <Link href={`/sheets/${s.id}`}>Lihat Sheet</Link>
                       </DropdownMenuItem>
+                      <DrawerDialog
+                        title={`Perbarui Sheet ${s.name}`}
+                        description={""}
+                        content={<UpdateSheetForm sheet={s} />}
+                        trigger={
+                          <DropdownMenuItem
+                            onSelect={(e) => e.preventDefault()}
+                          >
+                            <SquarePen className="text-muted-foreground" />
+                            Edit
+                          </DropdownMenuItem>
+                        }
+                      />
                       <DropdownMenuItem>
                         <FileDown className="text-muted-foreground" />
                         <button onClick={() => console.log("coming soon")}>
@@ -118,11 +132,10 @@ export default function Home() {
                       <DropdownMenuSeparator />
                       <DrawerDialog
                         title={`Hapus sheet ${s.name}`}
-                        // description={"anda yakin ingin menghapus sheet ini?"}
                         description={""}
                         content={
                           <div className="p-4 md:p-0 space-y-2">
-                            <Alert>
+                            <Alert variant="destructive">
                               <CircleAlert className="h-4 w-4" />
                               <AlertTitle>Perhatian!</AlertTitle>
                               <AlertDescription>

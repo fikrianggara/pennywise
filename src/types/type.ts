@@ -12,4 +12,5 @@ export type TRANSACTION = {
 export type SHEET = {
   id: string;
   name: string;
+  description: string;
 };
