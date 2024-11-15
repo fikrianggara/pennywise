@@ -55,10 +55,10 @@ import { ModeToggle } from "./toggle-button";
 
 export function Navbar() {
   return (
-    <div className="py-2 md:py-4 flex justify-between items-center sticky top-0 z-50 bg-background">
+    <div className="py-2 md:py-4 flex justify-between items-center sticky top-0 z-50 bg-background text-xs">
       <NavigationMenu>
         <NavigationMenuList>
-          <NavigationMenuItem>
+          {/* <NavigationMenuItem>
             <NavigationMenuTrigger>Overview</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
@@ -70,7 +70,7 @@ export function Navbar() {
                 </ListItem>
               </ul>
             </NavigationMenuContent>
-          </NavigationMenuItem>
+          </NavigationMenuItem> */}
           {/* <NavigationMenuItem>
             <NavigationMenuTrigger>Laporan</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -89,14 +89,18 @@ export function Navbar() {
           </NavigationMenuItem> */}
           <NavigationMenuItem>
             <Link href="/dashboard" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle() + " text-xs md:text-sm"}
+              >
                 Dashboard
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href="/" legacyBehavior passHref>
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+              <NavigationMenuLink
+                className={navigationMenuTriggerStyle() + " text-xs md:text-sm"}
+              >
                 Beranda
               </NavigationMenuLink>
             </Link>
