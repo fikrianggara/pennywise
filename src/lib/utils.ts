@@ -1,3 +1,4 @@
+import { TRANSACTION } from "@/types/type";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -28,5 +29,22 @@ export function getMonthNameFromDate(date: Date) {
     "November",
     "Desember",
   ];
-  return monthNames[date.getMonth() + 1];
+  return monthNames[date.getMonth()];
 }
+
+export const getTotalIncome = (transactions: TRANSACTION[]) =>
+  transactions
+    .filter((transaction) => transaction.account === "income")
+    .reduce(function (acc, obj) {
+      return acc + obj.amount;
+    }, 0);
+
+export const getTotalExpense = (transactions: TRANSACTION[]) =>
+  transactions
+    .filter((transaction) => transaction.account === "expense")
+    .reduce(function (acc, obj) {
+      return acc + obj.amount;
+    }, 0);
+
+export const getTotalBalance = (transactions: TRANSACTION[]) =>
+  getTotalIncome(transactions) - getTotalExpense(transactions);

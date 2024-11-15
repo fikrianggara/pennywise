@@ -1,15 +1,9 @@
 "use client";
 
 import * as React from "react";
-import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
-  WalletMinimal,
-} from "lucide-react";
+import { WalletMinimal } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -17,137 +11,63 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { transactions } from "@/data/transaction";
+import { usePersistStore } from "@/store/zustand";
 
-const sheets = [
-  ...new Set(transactions.map((transaction) => transaction.sheetId)),
-];
-
-const navMain = sheets.map((sheetId) => ({
-  name: sheetId,
-  statistic: transactions
-    .filter((transaction) => transaction.sheetId === sheetId)
-    .reduce(function (acc, obj) {
-      return obj.account === "income"
-        ? acc + obj.amount * 1000
-        : acc - obj.amount * 1000;
-    }, 0),
-  url: "/sheets/" + sheetId,
-  icon: WalletMinimal,
-}));
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  //   navMain: [
-  //     {
-  //       title: "Monthly",
-  //       url: "#",
-  //       icon: Calendar1,
-  //       isActive: true,
-  //       items: [
-  //         {
-  //           title: "January",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "February",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "March",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "April",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "May",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "June",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "July",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "August",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "September",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "October",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "November",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "December",
-  //           url: "#",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Annually",
-  //       url: "#",
-  //       icon: CalendarRange,
-  //       items: [
-  //         {
-  //           title: "2023",
-  //           url: "#",
-  //         },
-  //         {
-  //           title: "2024",
-  //           url: "#",
-  //         },
-  //       ],
-  //     },
-  //   ],
-  navMain: navMain,
-};
+// const data = {
+//   user: {
+//     name: "shadcn",
+//     email: "m@example.com",
+//     avatar: "/avatars/shadcn.jpg",
+//   },
+//   teams: [
+//     {
+//       name: "Acme Inc",
+//       logo: GalleryVerticalEnd,
+//       plan: "Enterprise",
+//     },
+//     {
+//       name: "Acme Corp.",
+//       logo: AudioWaveform,
+//       plan: "Startup",
+//     },
+//     {
+//       name: "Evil Corp.",
+//       logo: Command,
+//       plan: "Free",
+//     },
+//   ],
+// };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { sheets, transactions } = usePersistStore();
+  const navMain = sheets
+    ? sheets.map((sheet) => ({
+        id: sheet.id,
+        name: sheet.name,
+        statistic: transactions
+          ? transactions.filter(
+              (transaction) => transaction.sheetId === sheet.id
+            ).length < 0
+            ? 0
+            : transactions
+                .filter((transaction) => transaction.sheetId === sheet.id)
+                .reduce(function (acc, obj) {
+                  return obj.account === "income"
+                    ? acc + obj.amount
+                    : acc - obj.amount;
+                }, 0)
+          : 0,
+        url: "/sheets/" + sheet.id,
+        icon: WalletMinimal,
+      }))
+    : [];
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        {/* <TeamSwitcher teams={data.teams} /> */}
-        {/* <NavbarTitle /> */}
-      </SidebarHeader>
+      <SidebarHeader></SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
+        <NavMain items={navMain} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter>
+      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

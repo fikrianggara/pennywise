@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+"use client";
+// import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
@@ -8,11 +9,6 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Separator } from "@radix-ui/react-separator";
 
-export const metadata: Metadata = {
-  title: "PennyWise",
-  description: "Wise Up on Your Expenses",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,6 +17,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta title="PennyWise" />
+        <meta aria-description="Wise Up on Your Expenses" />
         <link rel="manifest" href="/manifest.json"></link>
       </head>
 
@@ -41,7 +39,7 @@ export default function RootLayout({
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <Breadcrumb />
               </div>
-              <div>{children}</div>
+              <div className="mt-4 md:mt-6">{children}</div>
             </main>
           </SidebarProvider>
         </ThemeProvider>

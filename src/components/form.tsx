@@ -40,15 +40,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import {
-  getLocalStorageByKey,
-  setLocalStorageByKey,
-} from "@/store/localstorage";
-import { transactions } from "@/data/transaction";
-import { cn } from "@/lib/utils";
 
-const uniqueCategories = [...new Set(transactions.map((t) => t.category))];
-const uniqueSheets = [...new Set(transactions.map((t) => t.sheetId))];
+import { cn } from "@/lib/utils";
+import { usePersistStore } from "@/store/zustand";
+
 const transactionSchema = z.object({
   sheetId: z
     .string({
@@ -57,7 +52,7 @@ const transactionSchema = z.object({
     .min(3, {
       message: "Sheet minimal 3 karakter",
     })
-    .max(30, {
+    .max(100, {
       message: "Sheet terlalu panjang",
     }),
   account: z.enum(["expense", "income"], {
@@ -96,6 +91,19 @@ const transactionSchema = z.object({
   time: z.string(),
 });
 
+const sheetSchema = z.object({
+  name: z
+    .string({
+      required_error: "nama harus terisi",
+    })
+    .min(4, {
+      message: "minimal 4 karakter",
+    })
+    .max(20, {
+      message: "maksimal 20 karakter",
+    }),
+});
+
 export const SelectInput = ({
   options,
   placeholder,
@@ -131,7 +139,7 @@ export const ComboboxWithSearchInput = ({
   callback: (value: string) => void;
 }) => {
   const [options, setOptions] = useState(optionsProp);
-  const [selectedOption, setSelectedOption] = useState(optionsProp[0].value);
+  const [selectedOption, setSelectedOption] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
   return (
@@ -244,13 +252,66 @@ export const RadioInput = ({
   );
 };
 
+export const AddSheetForm = () => {
+  const { addSheet } = usePersistStore();
+
+  const form = useForm<z.infer<typeof sheetSchema>>({
+    resolver: zodResolver(sheetSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
+  async function onSubmit(values: z.infer<typeof sheetSchema>) {
+    const payload = {
+      id: crypto.randomUUID(),
+      ...values,
+    };
+
+    addSheet(payload);
+
+    toast.success("Sheet berhasil ditambahkan");
+  }
+  return (
+    <div className="p-4 md:p-0">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 text-xs"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-xs ">Nama</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={"tabungan"}
+                    {...field}
+                    className="text-xs "
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="w-full text-xs ">
+            Tambah
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
+};
 export const AddTransactionForm = () => {
+  const { sheets, transactions, addTransaction } = usePersistStore();
+
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
-      sheetId: uniqueSheets[0],
+      sheetId: "",
       account: "expense",
-      category: uniqueCategories[0],
+      category: "",
       description: "",
       amount: 1,
       date: new Date(),
@@ -261,17 +322,10 @@ export const AddTransactionForm = () => {
     const payload = {
       id: crypto.randomUUID(),
       ...values,
-      date: format(values.date, "dd-MM-yyyy"),
     };
-    const transactionsString = getLocalStorageByKey("transactions");
-    if (transactionsString) {
-      const transactions = JSON.parse(transactionsString);
-      transactions.push(payload);
-      setLocalStorageByKey("transactions", JSON.stringify(transactions));
-    } else {
-      localStorage.setItem("transactions", JSON.stringify([payload]));
-    }
-    toast.success("Transaksi ditambahkan");
+    addTransaction(payload);
+
+    toast.success("Transaksi berhasil ditambahkan");
   }
 
   return (
@@ -310,9 +364,9 @@ export const AddTransactionForm = () => {
                   <FormLabel className=" text-xs ">Sheet</FormLabel>
                   <FormControl>
                     <ComboboxWithSearchInput
-                      optionsProp={uniqueSheets.map((sheet) => ({
-                        label: sheet,
-                        value: sheet,
+                      optionsProp={sheets.map((sheet) => ({
+                        label: sheet.name,
+                        value: sheet.id,
                       }))}
                       placeholder="Pilih Sheet"
                       callback={field.onChange}
@@ -331,10 +385,16 @@ export const AddTransactionForm = () => {
                   <FormLabel className="text-xs ">Kategori</FormLabel>
                   <FormControl>
                     <ComboboxWithSearchInput
-                      optionsProp={uniqueCategories.map((category) => ({
-                        label: category,
-                        value: category,
-                      }))}
+                      optionsProp={
+                        transactions.length > 0
+                          ? [
+                              ...new Set(transactions.map((t) => t.category)),
+                            ].map((category) => ({
+                              label: category,
+                              value: category,
+                            }))
+                          : []
+                      }
                       placeholder="Pilih Kategori"
                       callback={field.onChange}
                     />

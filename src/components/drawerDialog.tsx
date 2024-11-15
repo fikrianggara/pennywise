@@ -32,7 +32,7 @@ export function DrawerDialog({
 }: {
   trigger: React.ReactNode;
   title: string;
-  description: string | null;
+  description: string | null | React.ReactNode;
   content: React.ReactNode;
   shortcutKey?: string;
 }) {
@@ -77,7 +77,7 @@ export function DrawerDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         {content}
         <DialogClose asChild>
