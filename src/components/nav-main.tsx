@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  CircleAlert,
   Eye,
   FileDown,
   MoreHorizontal,
@@ -31,6 +32,7 @@ import { AddSheetForm } from "./form";
 import Link from "next/link";
 import { usePersistStore } from "@/store/zustand";
 import { Button } from "@/components/ui/button";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 
 export function NavMain({
   items,
@@ -106,10 +108,18 @@ export function NavMain({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DrawerDialog
-                    title={"Hapus Sheet"}
-                    description={"Hapus Sheet ini"}
+                    title={`Hapus sheet ${item.name}`}
+                    description={""}
                     content={
-                      <div className="p-4 md:p-0">
+                      <div className="p-4 md:p-0 space-y-2">
+                        <Alert>
+                          <CircleAlert className="h-4 w-4" />
+                          <AlertTitle>Perhatian!</AlertTitle>
+                          <AlertDescription>
+                            Tindakan yang akan anda lakukan tidak dapat
+                            dipulihkan
+                          </AlertDescription>
+                        </Alert>
                         <Button
                           className="w-full"
                           onClick={() => deleteSheetById(item.id)}
