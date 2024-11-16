@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/popover";
 import {
   Command,
+  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -149,29 +150,134 @@ export const SelectInput = ({
 };
 
 export const ComboboxWithSearchInput = ({
+  className,
   value,
   optionsProp,
   placeholder,
   callback,
 }: {
+  className?: string;
   value: string;
   optionsProp: { label: string; value: string }[];
   placeholder: string;
   callback: (value: string) => void;
 }) => {
-  const [options, setOptions] = useState(optionsProp);
   const [selectedOption, setSelectedOption] = useState(value);
   const [searchInput, setSearchInput] = useState("");
-
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
+          size={"sm"}
           className={cn(
             "w-full justify-between text-xs ",
-            !selectedOption && "text-muted-foreground"
+            !selectedOption && "text-muted-foreground",
+            className
+          )}
+        >
+          {selectedOption
+            ? optionsProp.find((option) => option.value === selectedOption)
+                ?.label
+            : placeholder}
+          <ChevronsUpDown className="opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-36 p-0 truncate">
+        <Command>
+          <CommandInput
+            value={searchInput}
+            placeholder={placeholder + "..."}
+            onValueChange={setSearchInput}
+            className="h-9 text-xs"
+          />
+          <CommandList>
+            {/* {optionsProp.find((option) =>
+              option.label.toLowerCase().startsWith(searchInput.toLowerCase())
+            ) ? (
+              <CommandEmpty>No framework found.</CommandEmpty>
+            ) : (
+              <CommandItem
+                key={searchInput}
+                value={searchInput}
+                onSelect={() => {
+                  setSelectedOption(searchInput);
+                  callback(searchInput);
+                }}
+              >
+                {searchInput}
+                <Check
+                  className={cn(
+                    "ml-auto text-xs  ",
+                    searchInput === selectedOption ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            )} */}
+            <CommandEmpty>tidak ditemukan</CommandEmpty>
+            <CommandGroup>
+              {optionsProp.map((option) => (
+                <CommandItem
+                  value={option.label}
+                  key={option.value}
+                  onSelect={() => {
+                    setSelectedOption(option.value);
+                    callback(option.value);
+                  }}
+                >
+                  {option.label}
+                  <Check
+                    className={cn(
+                      "ml-auto text-xs  ",
+                      option.value === selectedOption
+                        ? "opacity-100"
+                        : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+export const AddableComboboxWithSearchInput = ({
+  className,
+  value,
+  optionsProp,
+  placeholder,
+  callback,
+}: {
+  className?: string;
+  value: string;
+  optionsProp: { label: string; value: string }[];
+  placeholder: string;
+  callback: (value: string) => void;
+}) => {
+  const [options, setOptions] = useState<{ label: string; value: string }[]>(
+    []
+  );
+  const [selectedOption, setSelectedOption] = useState(value);
+  const [searchInput, setSearchInput] = useState("");
+  // console.log(optionsProp, options);
+  useEffect(() => {
+    setOptions(optionsProp);
+  }, []);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          size={"sm"}
+          className={cn(
+            "w-full justify-between text-xs ",
+            !selectedOption && "text-muted-foreground",
+            className
           )}
         >
           {selectedOption
@@ -188,9 +294,7 @@ export const ComboboxWithSearchInput = ({
             className="h-9 text-xs"
           />
           <CommandList>
-            {options.find((option) =>
-              option.label.toLowerCase().startsWith(searchInput.toLowerCase())
-            ) ? null : (
+            {searchInput !== "" && (
               <CommandItem
                 key={searchInput}
                 value={searchInput}
@@ -361,6 +465,7 @@ export const AddTransactionForm = () => {
     const payload = {
       id: crypto.randomUUID(),
       ...values,
+      date: new Date(values.date),
     };
     addTransaction(payload);
 
@@ -424,7 +529,7 @@ export const AddTransactionForm = () => {
                 <FormItem>
                   <FormLabel className="text-xs ">Kategori</FormLabel>
                   <FormControl>
-                    <ComboboxWithSearchInput
+                    <AddableComboboxWithSearchInput
                       value={field.value}
                       optionsProp={
                         transactions.length > 0
@@ -635,7 +740,8 @@ export const UpdateSheetForm = ({ sheet }: { sheet: SHEET }) => {
         <CircleAlert className="h-4 w-4" />
         <AlertTitle>Peringatan</AlertTitle>
         <AlertDescription className="text-xs">
-          Data yang dihapus tidak bisa dipulihkan.
+          Sheet yang dihapus tidak dapat dikembalikan. Catatan transaksi akan
+          ikut terhapus
         </AlertDescription>
       </Alert>
     </div>
@@ -710,7 +816,7 @@ export const UpdateTransactionForm = ({
                 <FormItem>
                   <FormLabel className=" text-xs ">Sheet</FormLabel>
                   <FormControl>
-                    <ComboboxWithSearchInput
+                    <AddableComboboxWithSearchInput
                       value={field.value}
                       optionsProp={sheets.map((sheet) => ({
                         label: sheet.name,
@@ -732,7 +838,7 @@ export const UpdateTransactionForm = ({
                 <FormItem>
                   <FormLabel className="text-xs ">Kategori</FormLabel>
                   <FormControl>
-                    <ComboboxWithSearchInput
+                    <AddableComboboxWithSearchInput
                       value={field.value}
                       optionsProp={
                         transactions.length > 0

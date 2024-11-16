@@ -12,7 +12,12 @@ import {
 import { SidebarMenuAction } from "@/components/ui/sidebar";
 import { TypographyH2 } from "@/components/ui/typhography";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getTotalBalance } from "@/lib/utils";
+import {
+  exportToExcel,
+  formatNumberToIDR,
+  getTotalBalance,
+  transformTransactionsToExportDataFormat,
+} from "@/lib/utils";
 import { usePersistStore } from "@/store/zustand";
 import {
   CircleAlert,
@@ -27,6 +32,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { format } from "date-fns";
 
 export default function Home() {
   // const { isOnline } = useNetworkChecker();
@@ -83,8 +89,8 @@ export default function Home() {
                           }`}
                         >
                           {totalBalance < 0
-                            ? `- Rp. ${totalBalance * -1}`
-                            : `Rp. ${totalBalance}`}
+                            ? `- ${formatNumberToIDR(totalBalance * -1)}`
+                            : `${formatNumberToIDR(totalBalance)}`}
                         </h3>
                       ) : (
                         <h2 className="text-xs md:text-md lg:text-lg tracking-tight italic">
@@ -125,7 +131,19 @@ export default function Home() {
                       />
                       <DropdownMenuItem>
                         <FileDown className="text-muted-foreground" />
-                        <button onClick={() => console.log("coming soon")}>
+                        <button
+                          onClick={() =>
+                            exportToExcel(
+                              transformTransactionsToExportDataFormat(
+                                transactions.filter(
+                                  (transaction) => transaction.sheetId === s.id
+                                ),
+                                [s]
+                              ),
+                              s.name + "_" + format(new Date(), "dd-MM-yyyy")
+                            )
+                          }
+                        >
                           Export Sheet
                         </button>
                       </DropdownMenuItem>
@@ -134,17 +152,19 @@ export default function Home() {
                         title={`Hapus sheet ${s.name}`}
                         description={""}
                         content={
-                          <div className="p-4 md:p-0 space-y-2">
+                          <div className="p-4 md:p-2 space-y-2">
                             <Alert variant="destructive">
                               <CircleAlert className="h-4 w-4" />
                               <AlertTitle>Perhatian!</AlertTitle>
                               <AlertDescription>
-                                Tindakan yang akan anda lakukan tidak dapat
-                                dipulihkan
+                                Sheet yang dihapus tidak dapat dikembalikan.
+                                Catatan transaksi akan{" "}
+                                <strong>ikut terhapus</strong>
                               </AlertDescription>
                             </Alert>
                             <Button
-                              className="w-full"
+                              className="w-full text-red-500"
+                              variant={"secondary"}
                               onClick={() => deleteSheetById(s.id)}
                             >
                               Hapus

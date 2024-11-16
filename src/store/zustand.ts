@@ -67,7 +67,10 @@ export const usePersistStore = create<PERSIST_STORE>()(
       },
       deleteSheetById: (id: string) => {
         const newSheets = get().sheets.filter((t: SHEET) => t.id != id);
-        set(() => ({ sheets: newSheets }));
+        const newTransactions = get().transactions.filter(
+          (t: TRANSACTION) => t.sheetId != id
+        );
+        set({ sheets: newSheets, transactions: newTransactions });
       },
     }),
 

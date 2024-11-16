@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { getMonthNameFromDate } from "@/lib/utils";
+import { formatNumberToIDR, getMonthNameFromDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DrawerDialog } from "@/components/drawerDialog";
@@ -22,6 +22,7 @@ const Page = () => {
   const filteredTransactions = transactions
     ? transactions
         .filter((transaction) => transaction.sheetId === sheetId)
+        .sort((a, b) => Number(new Date(b.date)) - Number(new Date(a.date)))
         .map((t) => {
           return {
             ...t,
@@ -64,8 +65,8 @@ const Page = () => {
               }`}
             >
               {totalBalance < 0
-                ? `- Rp. ${totalBalance * -1}`
-                : `Rp. ${totalBalance}`}
+                ? `- ${formatNumberToIDR(totalBalance * -1)}`
+                : `${formatNumberToIDR(totalBalance)}`}
             </h3>
           )}
         </div>
@@ -112,7 +113,7 @@ const Page = () => {
             return (
               <li key={i} className="space-y-2 pb-4">
                 <div
-                  className={`sticky top-48 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 pt-4 z-10 border-b ${
+                  className={`sticky top-56 backdrop-blur-sm bg-background/30 w-full flex justify-between py-2 pt-4 z-10 border-b ${
                     balanceByDate > 0
                       ? " border-emerald-500/50 text-emerald-500 "
                       : "border-rose-500/50 text-rose-500 "
@@ -129,8 +130,8 @@ const Page = () => {
                     }`}
                   >
                     {balanceByDate < 0
-                      ? `- Rp. ${balanceByDate * -1}`
-                      : `Rp. ${balanceByDate}`}
+                      ? `- ${formatNumberToIDR(balanceByDate * -1)}`
+                      : `${formatNumberToIDR(balanceByDate)}`}
                   </h4>
                 </div>
 
@@ -167,11 +168,11 @@ const Page = () => {
                               <div className="pr-4">
                                 {transaction.account === "income" ? (
                                   <p className="font-thin text-emerald-500 text-sm">
-                                    Rp. {transaction.amount}
+                                    {formatNumberToIDR(transaction.amount)}
                                   </p>
                                 ) : (
                                   <p className="font-thin text-rose-500 text-sm">
-                                    - Rp. {transaction.amount}
+                                    - {formatNumberToIDR(transaction.amount)}
                                   </p>
                                 )}
                               </div>

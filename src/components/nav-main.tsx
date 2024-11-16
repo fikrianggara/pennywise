@@ -34,6 +34,12 @@ import Link from "next/link";
 import { usePersistStore } from "@/store/zustand";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
+import {
+  exportToExcel,
+  formatNumberToIDR,
+  transformTransactionsToExportDataFormat,
+} from "@/lib/utils";
+import { format } from "date-fns";
 
 export function NavMain({
   items,
@@ -48,8 +54,7 @@ export function NavMain({
   }[];
 }) {
   const { isMobile } = useSidebar();
-  const { deleteSheetById } = usePersistStore();
-
+  const { deleteSheetById, transactions } = usePersistStore();
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Sheets</SidebarGroupLabel>
@@ -78,8 +83,8 @@ export function NavMain({
                         }`}
                       >
                         {item.statistic < 0
-                          ? `- Rp. ${-1 * item.statistic}`
-                          : "Rp. " + item.statistic}
+                          ? `- ${formatNumberToIDR(-1 * item.statistic)}`
+                          : "Rp. " + formatNumberToIDR(item.statistic)}
                       </span>
                     )}
                   </Link>
@@ -108,14 +113,26 @@ export function NavMain({
                     trigger={
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <SquarePen className="text-muted-foreground" />
-                        Edit
+                        Edit Sheet
                       </DropdownMenuItem>
                     }
                   />
 
                   <DropdownMenuItem>
                     <FileDown className="text-muted-foreground" />
-                    <button onClick={() => console.log("coming soon")}>
+                    <button
+                      onClick={() =>
+                        exportToExcel(
+                          transformTransactionsToExportDataFormat(
+                            transactions.filter(
+                              (transaction) => transaction.sheetId === item.id
+                            ),
+                            [item]
+                          ),
+                          item.name + "_" + format(new Date(), "dd-MM-yyyy")
+                        )
+                      }
+                    >
                       Export Sheet
                     </button>
                   </DropdownMenuItem>
@@ -124,17 +141,18 @@ export function NavMain({
                     title={`Hapus sheet ${item.name}`}
                     description={""}
                     content={
-                      <div className="p-4 md:p-0 space-y-2">
+                      <div className="p-4 md:p-2 space-y-2">
                         <Alert variant={"destructive"}>
                           <CircleAlert className="h-4 w-4" />
                           <AlertTitle>Perhatian!</AlertTitle>
                           <AlertDescription>
-                            Tindakan yang akan anda lakukan tidak dapat
-                            dipulihkan
+                            Sheet yang dihapus tidak dapat dikembalikan. Catatan
+                            transaksi akan ikut terhapus
                           </AlertDescription>
                         </Alert>
                         <Button
-                          className="w-full"
+                          className="w-full text-red-500"
+                          variant={"secondary"}
                           onClick={() => deleteSheetById(item.id)}
                         >
                           Hapus

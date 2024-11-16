@@ -40,47 +40,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    amount: 316,
-    category: "pengeluaran",
-    description: "Beli emmieh",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    category: "pengeluaran",
-    description: "Beli le mineral",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    category: "pemasukan",
-    description: "Translok",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    category: "pengeluaran",
-    description: "Seblak",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    category: "pemasukan",
-    description: "Gaji pokok",
-  },
-];
-
-export type Payment = {
+export type TransactionTable = {
   id: string;
   amount: number;
-  category: "pengeluaran" | "pemasukan";
+  account: "expense" | "income";
+  category: string;
   description: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<TransactionTable>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -104,11 +72,18 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "account",
+    header: "Akun",
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.getValue("account") === "income" ? "Pemasukan" : "Pengeluaran"}
+      </div>
+    ),
+  },
+  {
     accessorKey: "category",
     header: "Kategori",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("category")}</div>
-    ),
+    cell: ({ row }) => <div>{row.getValue("category")}</div>,
   },
   {
     accessorKey: "description",
@@ -129,14 +104,14 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
+    header: () => <div className="text-right">Jumlah</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"));
 
       // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
+      const formatted = new Intl.NumberFormat("id-ID", {
         style: "currency",
-        currency: "USD",
+        currency: "IDR",
       }).format(amount);
 
       return <div className="text-right font-medium">{formatted}</div>;
@@ -146,7 +121,7 @@ export const columns: ColumnDef<Payment>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const TransactionTable = row.original;
 
       return (
         <DropdownMenu>
@@ -159,13 +134,13 @@ export const columns: ColumnDef<Payment>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(TransactionTable.id)}
             >
-              Copy payment ID
+              Copy TransactionTable ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>View TransactionTable details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -173,7 +148,7 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function DataTableDemo() {
+export function DashboardDataTable({ data }: { data: TransactionTable[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -202,7 +177,7 @@ export function DataTableDemo() {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full max-h-[500px]">
       <div className="flex items-center py-4">
         <Input
           placeholder="beli seblak..."
@@ -261,7 +236,7 @@ export function DataTableDemo() {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
@@ -269,7 +244,14 @@ export function DataTableDemo() {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={`${
+                        row.getValue("account") == "expense"
+                          ? "dark:bg-rose-950 bg-rose-100"
+                          : "dark:bg-emerald-950 bg-emerald-100"
+                      }`}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
