@@ -40,7 +40,10 @@ import {
   transformTransactionsToExportDataFormat,
 } from "@/lib/utils";
 import { format } from "date-fns";
+import { SHEET } from "@/types/type";
+import { useState } from "react";
 
+export const DropdownSheetMenu = ({ sheet }: { sheet: SHEET }) => {};
 export function NavMain({
   items,
 }: {
@@ -55,6 +58,10 @@ export function NavMain({
 }) {
   const { isMobile } = useSidebar();
   const { deleteSheetById, transactions } = usePersistStore();
+  const [openDelete, setOpenDelete] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
+
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Sheets</SidebarGroupLabel>
@@ -62,7 +69,12 @@ export function NavMain({
         {items.length > 0 &&
           items.map((item) => (
             <SidebarMenuItem key={item.name}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton
+                asChild
+                onClick={(e) => {
+                  e.preventDefault();
+                }}
+              >
                 <div className="p-6 flex items-center">
                   <Avatar className="h-6 w-6">
                     <AvatarFallback>
@@ -84,7 +96,7 @@ export function NavMain({
                       >
                         {item.statistic < 0
                           ? `- ${formatNumberToIDR(-1 * item.statistic)}`
-                          : "Rp. " + formatNumberToIDR(item.statistic)}
+                          : "" + formatNumberToIDR(item.statistic)}
                       </span>
                     )}
                   </Link>
@@ -109,7 +121,11 @@ export function NavMain({
                   <DrawerDialog
                     title={`Perbarui Sheet ${item.name}`}
                     description={""}
-                    content={<UpdateSheetForm sheet={item} />}
+                    content={
+                      <UpdateSheetForm sheet={item} callback={setOpenUpdate} />
+                    }
+                    open={openUpdate}
+                    setOpen={setOpenUpdate}
                     trigger={
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <SquarePen className="text-muted-foreground" />
@@ -140,6 +156,8 @@ export function NavMain({
                   <DrawerDialog
                     title={`Hapus sheet ${item.name}`}
                     description={""}
+                    open={openDelete}
+                    setOpen={setOpenDelete}
                     content={
                       <div className="p-4 md:p-2 space-y-2">
                         <Alert variant={"destructive"}>
@@ -160,7 +178,11 @@ export function NavMain({
                       </div>
                     }
                     trigger={
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                        }}
+                      >
                         <Trash2 className="text-muted-foreground" />
                         <span>Hapus </span>
                       </DropdownMenuItem>
@@ -183,10 +205,12 @@ export function NavMain({
                 </kbd>
               </SidebarMenuButton>
             }
+            open={openAdd}
+            setOpen={setOpenAdd}
             title={"Tambah sheet"}
             description={"Tambah sheet baru"}
             shortcutKey="k"
-            content={<AddSheetForm />}
+            content={<AddSheetForm callback={setOpenAdd} />}
           />
         </SidebarMenuItem>
       </SidebarMenu>

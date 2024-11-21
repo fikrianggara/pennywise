@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -377,7 +377,7 @@ export const RadioInput = ({
   );
 };
 
-export const AddSheetForm = () => {
+export const AddSheetForm = ({ callback }: { callback: (p?: any) => void }) => {
   const { addSheet } = usePersistStore();
 
   const form = useForm<z.infer<typeof sheetSchema>>({
@@ -394,7 +394,7 @@ export const AddSheetForm = () => {
     };
 
     addSheet(payload);
-
+    callback(false);
     toast.success("Sheet berhasil ditambahkan");
   }
   return (
@@ -446,13 +446,20 @@ export const AddSheetForm = () => {
     </div>
   );
 };
-export const AddTransactionForm = () => {
+export const AddTransactionForm = ({
+  sheet,
+  callback,
+}: {
+  sheet: string;
+  callback: (p?: any) => void;
+}) => {
   const { sheets, transactions, addTransaction } = usePersistStore();
+  // const { setOpen } = useContext(DrawerContext);
 
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
-      sheetId: "",
+      sheetId: sheet ? sheet : "",
       account: "expense",
       category: "",
       description: "",
@@ -468,7 +475,7 @@ export const AddTransactionForm = () => {
       date: new Date(values.date),
     };
     addTransaction(payload);
-
+    callback(false);
     toast.success("Transaksi berhasil ditambahkan");
   }
 
@@ -657,7 +664,13 @@ export const AddTransactionForm = () => {
   );
 };
 
-export const UpdateSheetForm = ({ sheet }: { sheet: SHEET }) => {
+export const UpdateSheetForm = ({
+  sheet,
+  callback,
+}: {
+  sheet: SHEET;
+  callback: (p?: any) => void;
+}) => {
   const { updateSheetById, deleteSheetById } = usePersistStore();
 
   const form = useForm<z.infer<typeof sheetSchema>>({
@@ -674,7 +687,7 @@ export const UpdateSheetForm = ({ sheet }: { sheet: SHEET }) => {
       ...values,
     };
     updateSheetById(payload.id, payload);
-
+    callback(false);
     toast.success("Sheet berhasil diubah");
   }
   const onDelete = () => {
@@ -750,9 +763,11 @@ export const UpdateSheetForm = ({ sheet }: { sheet: SHEET }) => {
 
 export const UpdateTransactionForm = ({
   transaction,
+  callback,
 }: {
   id: string;
   transaction: TRANSACTION;
+  callback: (p?: any) => void;
 }) => {
   const { sheets, transactions, updateTransactionById, deleteTransactionById } =
     usePersistStore();
@@ -774,11 +789,12 @@ export const UpdateTransactionForm = ({
       ...values,
     };
     updateTransactionById(transaction.id, payload);
-
+    callback(false);
     toast.success("Transaksi berhasil diubah");
   }
   function onDelete() {
     deleteTransactionById(transaction.id);
+    callback(false);
     toast.success("Transaksi berhasil dihapus");
   }
   return (

@@ -29,14 +29,19 @@ export function DrawerDialog({
   description,
   content,
   shortcutKey,
+  open,
+  setOpen,
 }: {
   trigger: React.ReactNode;
   title: string;
   description: string | null | React.ReactNode;
   content: React.ReactNode;
   shortcutKey?: string;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
+  // const { open, setOpen } = useContext(DrawerContext);
   const isMobile = useIsMobile();
 
   React.useEffect(() => {

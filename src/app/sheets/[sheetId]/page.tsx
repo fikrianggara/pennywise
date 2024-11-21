@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { formatNumberToIDR, getMonthNameFromDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -14,7 +14,8 @@ const Page = () => {
   const params = useParams();
   const { sheetId } = params;
   const { sheets, transactions } = usePersistStore();
-
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
   if (!sheets.find((s) => s.id === sheetId)) {
     return notFound();
   }
@@ -80,10 +81,17 @@ const Page = () => {
               </kbd>
             </Button>
           }
+          open={openAdd}
+          setOpen={setOpenAdd}
           title="Tambah Transaksi"
           description="Tambah transaksi pengeluaran/pemasukan baru"
           shortcutKey="j"
-          content={<AddTransactionForm />}
+          content={
+            <AddTransactionForm
+              sheet={sheetId ? sheetId.toString() : ""}
+              callback={setOpenAdd}
+            />
+          }
         />
       </div>
 
@@ -146,6 +154,8 @@ const Page = () => {
                         <DrawerDialog
                           title="Detail Transaksi"
                           description="Detail transaksi pengeluaran/pemasukan"
+                          open={openUpdate}
+                          setOpen={setOpenUpdate}
                           content={
                             <UpdateTransactionForm
                               id={transaction.id}
@@ -153,6 +163,7 @@ const Page = () => {
                                 ...transaction,
                                 date: new Date(transaction.date),
                               }}
+                              callback={setOpenUpdate}
                             />
                           }
                           trigger={
