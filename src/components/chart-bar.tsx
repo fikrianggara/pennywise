@@ -57,7 +57,7 @@ export function DashboardBarChart({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="mx-auto h-64 sm:h-full">
+        <ChartContainer config={chartConfig}>
           <RechartsBarChart accessibilityLayer data={data}>
             <CartesianGrid vertical={false} />
             <XAxis
