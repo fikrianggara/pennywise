@@ -49,7 +49,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 
-import { cn } from "@/lib/utils";
+import { cn, formatNumberToIDR } from "@/lib/utils";
 import { usePersistStore } from "@/store/zustand";
 import { SHEET, TRANSACTION } from "@/types/type";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
@@ -155,18 +155,20 @@ export const ComboboxWithSearchInput = ({
   optionsProp,
   placeholder,
   callback,
+  disabled,
 }: {
   className?: string;
   value: string;
   optionsProp: { label: string; value: string }[];
   placeholder: string;
   callback: (value: string) => void;
+  disabled?: boolean;
 }) => {
   const [selectedOption, setSelectedOption] = useState(value);
   const [searchInput, setSearchInput] = useState("");
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild disabled={disabled}>
         <Button
           variant="outline"
           role="combobox"
@@ -191,6 +193,7 @@ export const ComboboxWithSearchInput = ({
             placeholder={placeholder + "..."}
             onValueChange={setSearchInput}
             className="h-9 text-xs"
+            disabled={disabled}
           />
           <CommandList>
             {/* {optionsProp.find((option) =>
@@ -263,7 +266,7 @@ export const AddableComboboxWithSearchInput = ({
   );
   const [selectedOption, setSelectedOption] = useState(value);
   const [searchInput, setSearchInput] = useState("");
-  // console.log(optionsProp, options);
+
   useEffect(() => {
     setOptions(optionsProp);
   }, []);
@@ -430,7 +433,7 @@ export const AddSheetForm = ({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs ">Catatan</FormLabel>
+                <FormLabel className="text-xs ">Deskripsi</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="deskripsi sheet"
@@ -453,25 +456,27 @@ export const AddSheetForm = ({
 export const AddTransactionForm = ({
   sheet,
   callback,
+  defaultCategory,
 }: {
   sheet: string;
   callback: React.Dispatch<React.SetStateAction<boolean>>;
+  defaultCategory?: string;
 }) => {
   const { sheets, transactions, addTransaction } = usePersistStore();
-  // const { setOpen } = useContext(DrawerContext);
-
+  const today = new Date();
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
       sheetId: sheet ? sheet : "",
       account: "expense",
-      category: "",
+      category: defaultCategory ? defaultCategory : "",
       description: "",
       amount: 1,
       date: new Date(),
-      time: "",
+      time: `${new Date().getHours()}:${new Date().getMinutes()}`,
     },
   });
+
   function onSubmit(values: z.infer<typeof transactionSchema>) {
     const payload = {
       id: crypto.randomUUID(),
@@ -484,7 +489,7 @@ export const AddTransactionForm = ({
   }
 
   return (
-    <div className="h-[calc(100vh-400px)] overflow-y-scroll p-4 md:p-2">
+    <div className="h-[70vh] overflow-y-scroll p-4 md:p-2">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -510,10 +515,11 @@ export const AddTransactionForm = ({
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             <FormField
               control={form.control}
               name="sheetId"
+              // disabled={sheet ? true : false}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className=" text-xs ">Sheet</FormLabel>
@@ -607,12 +613,36 @@ export const AddTransactionForm = ({
               name="time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs ">Waktu</FormLabel>
+                  <FormLabel className="text-xs ">
+                    {" "}
+                    Waktu -{" "}
+                    {today.toString().includes("Western")
+                      ? "Waktu Indonesia Barat (WIB)"
+                      : today.toString().includes("Eastern")
+                      ? "Waktu Indonesia Timur (WIT)"
+                      : "Waktu Indonesia Tengah (WITA)"}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={"hh:mm"}
                       {...field}
-                      className="text-xs "
+                      className="text-xs bg-background"
+                      onChange={(e) => {
+                        const value = e.target.value.replaceAll(/[^\d.]/g, "");
+
+                        if (value.length > 4) return;
+                        const hour = value.slice(0, 2);
+                        const minute = value.slice(2, 4);
+                        let time;
+                        if (minute != "") {
+                          time = `${hour}:${minute}`;
+                        } else {
+                          time = hour;
+                        }
+
+                        field.onChange(time);
+                        // field.onChange(e.target.value);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -630,13 +660,16 @@ export const AddTransactionForm = ({
                   <Input
                     placeholder=""
                     {...field}
-                    type="number"
-                    className="text-xs "
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    className="text-xs bg-background"
+                    onChange={(e) => {
+                      const value = e.target.value.replaceAll(/[^\d.]/g, "");
+                      field.onChange(Number(value));
+                    }}
                   />
                 </FormControl>
                 <FormDescription className="text-xs">
-                  nominal yang diperoleh atau dikeluarkan
+                  nominal yang diperoleh atau dikeluarkan.{" "}
+                  {formatNumberToIDR(field.value)}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -651,7 +684,7 @@ export const AddTransactionForm = ({
                 <FormControl>
                   <Textarea
                     placeholder="deskripsi pengeluaran/pemasukan"
-                    className="resize-none text-xs "
+                    className="resize-none text-xs bg-background"
                     {...field}
                   />
                 </FormControl>
@@ -714,7 +747,7 @@ export const UpdateSheetForm = ({
                   <Input
                     placeholder={"tabungan"}
                     {...field}
-                    className="text-xs "
+                    className="text-xs bg-background"
                   />
                 </FormControl>
                 <FormMessage />
@@ -769,7 +802,6 @@ export const UpdateTransactionForm = ({
   transaction,
   callback,
 }: {
-  id: string;
   transaction: TRANSACTION;
   callback: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
@@ -787,6 +819,7 @@ export const UpdateTransactionForm = ({
       time: transaction.time,
     },
   });
+
   function onSubmit(values: z.infer<typeof transactionSchema>) {
     const payload = {
       id: crypto.randomUUID(),
@@ -801,8 +834,9 @@ export const UpdateTransactionForm = ({
     callback(() => false);
     toast.success("Transaksi berhasil dihapus");
   }
+  const today = new Date();
   return (
-    <div className="h-[calc(100vh-400px)] overflow-y-scroll p-4 md:p-2 space-y-4">
+    <div className="h-[70vh] overflow-y-scroll p-4 md:p-2 space-y-4">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -828,7 +862,7 @@ export const UpdateTransactionForm = ({
               </FormItem>
             )}
           />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             <FormField
               control={form.control}
               name="sheetId"
@@ -925,12 +959,35 @@ export const UpdateTransactionForm = ({
               name="time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-xs ">Waktu</FormLabel>
+                  <FormLabel className="text-xs ">
+                    Waktu -{" "}
+                    {today.toString().includes("Western")
+                      ? "Waktu Indonesia Barat (WIB)"
+                      : today.toString().includes("Eastern")
+                      ? "Waktu Indonesia Timur (WIT)"
+                      : "Waktu Indonesia Tengah (WITA)"}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={"hh:mm"}
                       {...field}
-                      className="text-xs "
+                      className="text-xs bg-background"
+                      onChange={(e) => {
+                        const value = e.target.value.replaceAll(/[^\d.]/g, "");
+
+                        if (value.length > 4) return;
+                        const hour = value.slice(0, 2);
+                        const minute = value.slice(2, 4);
+                        let time;
+                        if (minute != "") {
+                          time = `${hour}:${minute}`;
+                        } else {
+                          time = hour;
+                        }
+
+                        field.onChange(time);
+                        // field.onChange(e.target.value);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -946,15 +1003,19 @@ export const UpdateTransactionForm = ({
                 <FormLabel className="text-xs ">Nominal</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder=""
+                    placeholder="hh:mm"
                     {...field}
-                    type="number"
-                    className="text-xs "
-                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    className="text-xs bg-background"
+                    onChange={(e) => {
+                      // if (isNaN(parseInt(e.target.value))) return;
+                      const value = e.target.value.replaceAll(/[^\d.]/g, "");
+                      field.onChange(Number(value));
+                    }}
                   />
                 </FormControl>
                 <FormDescription className="text-xs">
-                  nominal yang diperoleh atau dikeluarkan
+                  nominal yang diperoleh atau dikeluarkan.{" "}
+                  {formatNumberToIDR(field.value)}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -965,11 +1026,11 @@ export const UpdateTransactionForm = ({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-xs ">Catatan</FormLabel>
+                <FormLabel className="text-xs ">Deskripsi</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="deskripsi pengeluaran/pemasukan"
-                    className="resize-none text-xs "
+                    className="resize-none text-xs bg-background"
                     {...field}
                   />
                 </FormControl>

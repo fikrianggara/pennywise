@@ -1,14 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatNumberToIDR, getMonthNameFromDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { DrawerDialog } from "@/components/drawerDialog";
+import {
+  DrawerDialog,
+  DrawerDialogWithoutTrigger,
+} from "@/components/drawerDialog";
 import { AddTransactionForm, UpdateTransactionForm } from "@/components/form";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { usePersistStore } from "@/store/zustand";
 import notFound from "@/app/not-found";
+import { TRANSACTION } from "@/types/type";
 
 const Page = () => {
   const params = useParams();
@@ -16,9 +20,18 @@ const Page = () => {
   const { sheets, transactions } = usePersistStore();
   const [openAdd, setOpenAdd] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<TRANSACTION | null>(null);
+
   if (!sheets.find((s) => s.id === sheetId)) {
     return notFound();
   }
+
+  // useEffect(() => {
+  //   if (selectedTransaction) {
+  //     setOpenUpdate(true);
+  //   }
+  // }, [openUpdate]);
 
   const filteredTransactions = transactions
     ? transactions
@@ -49,8 +62,35 @@ const Page = () => {
 
   const totalBalance = totalIncome - totalExpense;
 
+  const categoryFrequencies = [
+    ...new Set(filteredTransactions.map((transaction) => transaction.category)),
+  ]
+    .map((category) => {
+      return {
+        category,
+        frequency: filteredTransactions.filter(
+          (transaction) => transaction.category === category
+        ).length,
+      };
+    })
+    .sort((a, b) => b.frequency - a.frequency);
+
   return (
     <div className="w-11/12 md:w-10/12 lg:w-8/10 mx-auto space-y-6">
+      {selectedTransaction && openUpdate && (
+        <DrawerDialogWithoutTrigger
+          title="Detail Transaksi"
+          description="Detail transaksi pengeluaran/pemasukan"
+          open={openUpdate}
+          setOpen={setOpenUpdate}
+          content={
+            <UpdateTransactionForm
+              transaction={selectedTransaction}
+              callback={setOpenUpdate}
+            />
+          }
+        />
+      )}
       <div className="space-y-6 sticky top-12 bg-background py-4 z-40">
         <div className="w-full text-center space-y-2">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
@@ -90,6 +130,7 @@ const Page = () => {
             <AddTransactionForm
               sheet={sheetId ? sheetId.toString() : ""}
               callback={setOpenAdd}
+              defaultCategory={categoryFrequencies[0]?.category}
             />
           }
         />
@@ -150,46 +191,35 @@ const Page = () => {
                       <li
                         key={i}
                         className="space-y-2 hover:bg-muted p-2 rounded cursor-pointer"
+                        onClick={() => {
+                          setSelectedTransaction({
+                            ...transaction,
+                            date: new Date(transaction.date),
+                          });
+                          setOpenUpdate(true);
+                        }}
                       >
-                        <DrawerDialog
-                          title="Detail Transaksi"
-                          description="Detail transaksi pengeluaran/pemasukan"
-                          open={openUpdate}
-                          setOpen={setOpenUpdate}
-                          content={
-                            <UpdateTransactionForm
-                              id={transaction.id}
-                              transaction={{
-                                ...transaction,
-                                date: new Date(transaction.date),
-                              }}
-                              callback={setOpenUpdate}
-                            />
-                          }
-                          trigger={
-                            <div className="w-full flex justify-between items-start relative">
-                              <div className="flex flex-col space-y-1 ">
-                                <h5 className="text-sm md:text-base">
-                                  {transaction.category}
-                                </h5>
-                                <p className="text-xs md:text-sm text-muted-foreground">
-                                  {transaction.description}
-                                </p>
-                              </div>
-                              <div className="pr-4">
-                                {transaction.account === "income" ? (
-                                  <p className="font-thin text-emerald-500 text-sm">
-                                    {formatNumberToIDR(transaction.amount)}
-                                  </p>
-                                ) : (
-                                  <p className="font-thin text-rose-500 text-sm">
-                                    - {formatNumberToIDR(transaction.amount)}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          }
-                        />
+                        <div className="w-full flex justify-between items-start relative">
+                          <div className="flex flex-col space-y-1 ">
+                            <h5 className="text-sm md:text-base">
+                              {transaction.category}
+                            </h5>
+                            <p className="text-xs md:text-sm text-muted-foreground">
+                              {transaction.description}
+                            </p>
+                          </div>
+                          <div className="pr-4">
+                            {transaction.account === "income" ? (
+                              <p className="font-thin text-emerald-500 text-sm">
+                                {formatNumberToIDR(transaction.amount)}
+                              </p>
+                            ) : (
+                              <p className="font-thin text-rose-500 text-sm">
+                                - {formatNumberToIDR(transaction.amount)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </li>
                     ))}
                 </ul>

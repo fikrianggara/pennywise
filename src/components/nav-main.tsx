@@ -56,6 +56,7 @@ export function NavMain({
 }) {
   const { isMobile } = useSidebar();
   const { deleteSheetById, transactions } = usePersistStore();
+  const { toggleSidebar } = useSidebar();
   const [openDelete, setOpenDelete] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -71,6 +72,7 @@ export function NavMain({
                 asChild
                 onClick={(e) => {
                   e.preventDefault();
+                  if (isMobile) toggleSidebar();
                 }}
               >
                 <div className="p-6 flex items-center">
@@ -114,7 +116,14 @@ export function NavMain({
                 >
                   <DropdownMenuItem>
                     <Eye className="text-muted-foreground" />
-                    <Link href={`/sheets/${item.id}`}>Lihat Sheet</Link>
+                    <Link
+                      href={`/sheets/${item.id}`}
+                      onClick={() => {
+                        if (isMobile) toggleSidebar();
+                      }}
+                    >
+                      Lihat Sheet
+                    </Link>
                   </DropdownMenuItem>
                   <DrawerDialog
                     title={`Perbarui Sheet ${item.name}`}

@@ -88,3 +88,19 @@ export const formatNumberToIDR = (number: number) => {
     currency: "IDR",
   }).format(number);
 };
+
+export const formatStringToHour = (value: string) => {
+  value = value.replaceAll(/[^\d.]/g, "");
+  console.log("value", value);
+
+  if (value.length > 4) return;
+  const hour = value.slice(0, 2);
+  const minute = value.slice(2, 4);
+  let time;
+  if (minute != "") {
+    time = `${hour}:${minute}`;
+  } else {
+    time = hour;
+  }
+  return time;
+};

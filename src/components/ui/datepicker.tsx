@@ -72,6 +72,15 @@ export function DatePickerWithRange({
             initialFocus
             mode="range"
             defaultMonth={filteredDate.from}
+            // onDayClick={(day) =>
+            //   setFilteredDate((prev) =>
+            //     prev?.to
+            //       ? { from: day, to: undefined }
+            //       : prev?.from
+            //       ? { from: prev?.from, to: day }
+            //       : { from: day, to: undefined }
+            //   )
+            // }
             selected={date}
             onSelect={onChange}
             numberOfMonths={2}

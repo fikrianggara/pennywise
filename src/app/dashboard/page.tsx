@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { TypographyH2 } from "@/components/ui/typhography";
-import { DollarSign, FileSpreadsheet } from "lucide-react";
+import {
+  DollarSign,
+  FileSpreadsheet,
+  HandCoins,
+  HandIcon,
+  PieChart,
+  Scale,
+  Wallet,
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardDonutChart } from "@/components/chart-donut";
 import { usePersistStore } from "@/store/zustand";
@@ -29,9 +37,12 @@ export default function Dashboard() {
   const [filteredTransactions, setFilteredTransactions] =
     useState<TRANSACTION[]>(transactions);
 
-  const [filteredDate, setFilteredDate] = useState<DateRange>({
-    from: subDays(new Date(), 30),
-    to: new Date(),
+  const [filteredDate, setFilteredDate] = useState<DateRange>(() => {
+    const today = new Date();
+    return {
+      from: new Date(today.getFullYear(), today.getMonth(), 1),
+      to: today,
+    };
   });
 
   useEffect(() => {
@@ -86,7 +97,7 @@ export default function Dashboard() {
     const uniqueCategory = [
       ...new Set(filteredTransactions.map((t) => t.category)),
     ];
-    console.log(filteredTransactions);
+
     const categoryStat = uniqueCategory
       .map((category) => {
         return {
@@ -159,7 +170,7 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-thin">Total Pengeluaran</h4>
-                      <DollarSign size={16} />
+                      <HandCoins size={16} />
                     </div>
                     <h2 className="text-base md:text-xl font-semibold tracking-tight">
                       {formatNumberToIDR(expenseStat.amount)}
@@ -177,7 +188,7 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-thin">Total Pemasukan</h4>
-                      <DollarSign size={16} />
+                      <Wallet size={16} />
                     </div>
                     <h2 className="text-base md:text-xl font-semibold tracking-tight">
                       {formatNumberToIDR(incomeStat.amount)}
@@ -195,7 +206,7 @@ export default function Dashboard() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <h4 className="text-xs font-thin">Total Pendapatan</h4>
-                      <DollarSign size={16} />
+                      <Scale size={16} />
                     </div>
                     <h2
                       className={`text-base md:text-xl font-semibold tracking-tight ${
@@ -221,14 +232,13 @@ export default function Dashboard() {
                       <h4 className="text-xs font-thin">
                         Pengeluaran Terbanyak
                       </h4>
-                      <DollarSign size={16} />
+                      <PieChart size={16} />
                     </div>
                     <h2 className="text-base md:text-xl font-semibold tracking-tight">
                       {categoryStat[0]?.name}
                     </h2>
                   </div>
                   <p className="text-xs flex items-center gap-2 font-medium leading-none">
-                    Sebesar{" "}
                     <strong
                       className={
                         categoryStat[0]?.amount < 0
@@ -241,7 +251,7 @@ export default function Dashboard() {
                     {/* <TrendingUp className="h-4 w-4" /> */}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    dari {categoryStat[0]?.count} transaksi
+                    {categoryStat[0]?.count} catatan
                   </p>
                 </div>
               </div>
@@ -264,8 +274,8 @@ export default function Dashboard() {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 w-full">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 w-full">
+          <div className="sm:col-span-2">
             <DashboardBarChart
               title={"Pendapatan dan Pengeluaran"}
               description={`Transaksi ${format(
@@ -281,10 +291,10 @@ export default function Dashboard() {
             />
           </div>
 
-          <Card className="h-full p-4 md:p-6">
+          <Card className="col-span-2 lg:col-span-1 h-full p-4 md:p-6">
             <h2 className="font-bold">Histori Transaksi</h2>
             <h3 className="text-xs text-muted-foreground">
-              30 transaksi bulan ini
+              {filteredTransactions.length} transaksi
             </h3>
             <DashboardDataTable
               data={filteredTransactions.map((t) => {
@@ -293,6 +303,7 @@ export default function Dashboard() {
                   date: format(t.date, "dd LLLL yyyy", {
                     locale: id,
                   }),
+                  sheetId: t.sheetId,
                   category: t.category,
                   account: t.account as "expense" | "income",
                   amount: t.amount,
