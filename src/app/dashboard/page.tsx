@@ -7,10 +7,8 @@ import { Card } from "@/components/ui/card";
 import { DatePickerWithRange } from "@/components/ui/datepicker";
 import { TypographyH2 } from "@/components/ui/typhography";
 import {
-  DollarSign,
   FileSpreadsheet,
   HandCoins,
-  HandIcon,
   PieChart,
   Scale,
   Wallet,
@@ -27,7 +25,7 @@ import {
   formatNumberToIDR,
   transformTransactionsToExportDataFormat,
 } from "@/lib/utils";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import Empty from "@/components/empty";
 
