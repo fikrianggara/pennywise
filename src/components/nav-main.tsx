@@ -40,10 +40,8 @@ import {
   transformTransactionsToExportDataFormat,
 } from "@/lib/utils";
 import { format } from "date-fns";
-import { SHEET } from "@/types/type";
 import { useState } from "react";
 
-export const DropdownSheetMenu = ({ sheet }: { sheet: SHEET }) => {};
 export function NavMain({
   items,
 }: {

@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -377,7 +377,11 @@ export const RadioInput = ({
   );
 };
 
-export const AddSheetForm = ({ callback }: { callback: (p?: any) => void }) => {
+export const AddSheetForm = ({
+  callback,
+}: {
+  callback: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const { addSheet } = usePersistStore();
 
   const form = useForm<z.infer<typeof sheetSchema>>({
@@ -451,7 +455,7 @@ export const AddTransactionForm = ({
   callback,
 }: {
   sheet: string;
-  callback: (p?: any) => void;
+  callback: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { sheets, transactions, addTransaction } = usePersistStore();
   // const { setOpen } = useContext(DrawerContext);
@@ -669,7 +673,7 @@ export const UpdateSheetForm = ({
   callback,
 }: {
   sheet: SHEET;
-  callback: (p?: any) => void;
+  callback: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { updateSheetById, deleteSheetById } = usePersistStore();
 
@@ -687,7 +691,7 @@ export const UpdateSheetForm = ({
       ...values,
     };
     updateSheetById(payload.id, payload);
-    callback(false);
+    callback(() => false);
     toast.success("Sheet berhasil diubah");
   }
   const onDelete = () => {
@@ -767,7 +771,7 @@ export const UpdateTransactionForm = ({
 }: {
   id: string;
   transaction: TRANSACTION;
-  callback: (p?: any) => void;
+  callback: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { sheets, transactions, updateTransactionById, deleteTransactionById } =
     usePersistStore();
@@ -789,12 +793,12 @@ export const UpdateTransactionForm = ({
       ...values,
     };
     updateTransactionById(transaction.id, payload);
-    callback(false);
+    callback(() => false);
     toast.success("Transaksi berhasil diubah");
   }
   function onDelete() {
     deleteTransactionById(transaction.id);
-    callback(false);
+    callback(() => false);
     toast.success("Transaksi berhasil dihapus");
   }
   return (
