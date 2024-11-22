@@ -10,7 +10,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenuAction } from "@/components/ui/sidebar";
-import { Paragraph, TypographyH2 } from "@/components/ui/typhography";
+import {
+  Paragraph,
+  TypographyH1,
+  TypographyH2,
+} from "@/components/ui/typhography";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   exportToExcel,
@@ -44,22 +48,32 @@ export default function Home() {
   const [openAdd, setOpenAdd] = useState(false);
 
   return (
-    <div className="w-11/12 mx-auto space-y-6 lg:space-y-12">
+    <div className="w-11/12 mx-auto space-y-4 lg:space-y-8">
       <div className="space-y-2 md:space-y-4">
-        <TypographyH2>PennyWise</TypographyH2>
-        <p className="text-lg md:text-xl text-muted-foreground">
+        <TypographyH1>PennyWise</TypographyH1>
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground italic">
           Wise Up Your Penny&lsquo;s Expenses
         </p>
-        <div className="text-xs md:text-md lg:text-lg leading-relaxed w-11/12 lg:w-1/2">
+        <div className="text-xs md:text-md lg:text-lg leading-relaxed w-11/12 lg:w-3/4">
           <Paragraph>
-            Pennywise adalah teman keuangan cerdas Anda, yang membantu Anda
-            melacak pengeluaran, mengelola pendapatan, dan mencapai kejelasan
-            finansial—semuanya dalam satu aplikasi sederhana. Pantau keuangan
-            Anda dengan mudah dan manfaatkan setiap sen.
+            <strong className="font-bold">PennyWise</strong> adalah teman
+            keuangan cerdas Anda, yang membantu Anda melacak pengeluaran,
+            mengelola pendapatan, dan mencapai kejelasan finansial—semuanya
+            dalam satu aplikasi sederhana. Pantau keuangan Anda dengan mudah dan
+            manfaatkan setiap sen.
           </Paragraph>
+          {sheets.length < 1 && (
+            <Paragraph>
+              Kami mengelompokkan pengeluaran anda ke dalam Sheet, setiap sheet
+              bisa anda anggap sebagai tabungan, tabungan darurat, uang tunai,
+              dan sebagainya. Mulai pencatatan keuangan anda dengan membuat
+              sheet baru, lalu tambahkan transaksi pengeluaran / pemasukkan anda
+              dengan klik sheet yang telah dibuat.
+            </Paragraph>
+          )}
         </div>
       </div>
-
+      <TypographyH2>Sheets</TypographyH2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-2 lg:gap-4">
         {sheets &&
           sheets.map((s) => {
@@ -196,15 +210,27 @@ export default function Home() {
 
         <DrawerDialog
           trigger={
-            <div className="h-full p-6 flex justify-center items-center border rounded-xl cursor-pointer shadow">
-              <div className="flex items-center justify-evenly w-full">
-                <div className="text-sidebar-foreground/70 flex flex-col md:flex-row justify-evenly items-center w-full">
-                  <div className="flex space-x-2 items-center text-xs md:text-sm">
-                    <Plus size={16} className="mr-2" /> Sheet
+            !sheets.length ? (
+              <div className="h-full p-6 flex justify-center items-center border rounded-xl cursor-pointer shadow animate-pulse ring-1 ring-offset ring-emerald-600/30">
+                <div className="flex items-center justify-evenly w-full">
+                  <div className="text-sidebar-foreground/70 flex flex-col md:flex-row justify-evenly items-center w-full">
+                    <div className="flex space-x-2 items-center text-xs md:text-sm">
+                      <Plus size={16} className="mr-2" /> Sheet
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="h-full p-6 flex justify-center items-center border rounded-xl cursor-pointer shadow ">
+                <div className="flex items-center justify-evenly w-full">
+                  <div className="text-sidebar-foreground/70 flex flex-col md:flex-row justify-evenly items-center w-full">
+                    <div className="flex space-x-2 items-center text-xs md:text-sm">
+                      <Plus size={16} className="mr-2" /> Sheet
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
           }
           open={openAdd}
           setOpen={setOpenAdd}
